@@ -20,6 +20,7 @@ public class ProtocolConstants {
     public static final byte CMD_SND_SCORE = 0x15;
     public static final byte CMD_SND_ENDGAME = 0x16;
     public static final byte CMD_SND_FAIL_ATTEMPT = 0x17;
+    public static final byte CMD_SND_Mischellaneous= 0x18;
 
     // Message format constants
     public static final String MSG_TERMINATOR = "\n";
