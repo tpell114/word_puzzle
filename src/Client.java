@@ -104,7 +104,7 @@ public class Client {
         String numWords = System.console().readLine();
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
         String failedAttemptFactor = System.console().readLine();
-        this.sendToServer(ProtocolConstants.CMD_REQ_NEW_GAME + numWords + ":" + failedAttemptFactor);
+        this.sendToServer(ProtocolConstants.CMD_REQ_NEW_GAME + " " + numWords + ":" + failedAttemptFactor);
         String response = this.readFromServer();
         System.out.println("\n" + response);
 
