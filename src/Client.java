@@ -23,7 +23,7 @@ public class Client {
             System.out.println("=======================");
             System.out.println("\nPlease enter your name:");
             String name = System.console().readLine();
-            client.sendToServer("*register " + name);
+            client.sendToServer(ProtocolConstants.CMD_SIGN_IN + " " + name);
             String response = client.readFromServer();
             System.out.println("\n" + response);
 
@@ -49,7 +49,7 @@ public class Client {
 
                     case "3":
                         System.out.println("\nGoodbye!");
-                        client.sendToServer("*exit");
+                        client.sendToServer(ProtocolConstants.CMD_EXIT + " ");
                         exitFlag = true;
                         break;
                     
@@ -104,7 +104,7 @@ public class Client {
         String numWords = System.console().readLine();
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
         String failedAttemptFactor = System.console().readLine();
-        this.sendToServer("*play " + numWords + " " + failedAttemptFactor);
+        this.sendToServer(ProtocolConstants.CMD_REQ_NEW_GAME + numWords + ":" + failedAttemptFactor);
         String response = this.readFromServer();
         System.out.println("\n" + response);
 
