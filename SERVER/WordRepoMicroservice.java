@@ -12,6 +12,7 @@ public class WordRepoMicroservice
     {
         try{
             WordRepoMicroservice wordRepo = new WordRepoMicroservice("words.txt");
+            wordRepo.runUDPServer();
         }
         catch(Exception e)
         {
@@ -86,8 +87,11 @@ public class WordRepoMicroservice
             int position = findInsertPosition(word);
 
             words.add(position, word);
+            System.out.println(word + " has been added");
             return true;
+           
         }
+        System.out.println(word + " has NOT been added");
         return false;
     }
 
@@ -109,6 +113,11 @@ public class WordRepoMicroservice
         }
         return false;
     }
+
+    //private String[] words(int numOfWords)
+  //  {
+
+  //  }
 
     private int findInsertPosition(String word)
     {
@@ -155,6 +164,83 @@ public class WordRepoMicroservice
 
         return -1;
 
+    }
+
+    private void runUDPServer()
+    {
+        try(DatagramSocket socket = new DatagramSocket(PORT))
+        {
+            System.out.println("WordRepoMicroservice is running on port " + PORT);
+
+            byte[] buffer = new byte[1024];
+            while(true)
+            {
+                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+                socket.receive(request);
+
+                String message = new String(request.getData(), 0, request.getLength());
+                System.out.println("Recieved: " + message);
+
+               boolean responseBool = processRequest(message);
+               String responseString;
+
+               if (responseBool == true)
+               {
+               responseString = "true";
+               }
+               else
+               { 
+               responseString = "false";
+               }
+
+                byte[] responseBytes = responseString.getBytes();
+
+                DatagramPacket reply = new DatagramPacket(responseBytes, responseBytes.length, request.getAddress(), request.getPort());
+                socket.send(reply);
+            }
+            
+
+        }
+        catch(IOException e)
+        {
+            System.err.println("Error running UDP server: " + e.getMessage());
+        }
+    }
+
+    private boolean processRequest(String message)
+    {
+        byte cmdCode;
+        String contents;
+        String[] parts = message.split(" ", 2);
+        boolean isTrue;
+        try
+        {
+            cmdCode = (byte) Integer.parseInt(parts[0], 16);  
+            contents = (parts[1]);
+
+            switch (cmdCode)
+            {
+                case ProtocolConstants.CMD_CHECK_IF_WORD_EXISTS:
+                return wordExists(contents);
+
+                case ProtocolConstants.CMD_ADD_WORD:
+                return addWord(contents);
+
+                case ProtocolConstants.CMD_REMOVE_WORD:
+                return removeWord(contents);
+
+                default:
+                System.out.println("Recieved unrecognized command and message: " + cmdCode + " " + message);
+                return false;
+              //  out.println("ERROR: Unrecognized command and message:" + cmdCode + " " + message) 
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.out.println("Invalid cmd format" + parts[0]);
+            return false; //need to handle this error in run()
+        }
     }
 
 }

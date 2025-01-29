@@ -85,9 +85,10 @@ public class PuzzleServer
             String inputMsg;
             while ((inputMsg = in.readLine()) != null) 
             {
-                System.out.println("Received:" + inputMsg); //FOR TESTING
+                //System.out.println("Received:" + inputMsg);                        //FOR TESTING
                 byte cmdCode = parseCommand(inputMsg);
-                handleClientReq(cmdCode, inputMsg, out, clientSocket);
+                String msgContents = parseContents(inputMsg);
+                handleClientReq(cmdCode, msgContents, out, clientSocket);
             }
         
         clientSocket.close();
@@ -98,6 +99,21 @@ public class PuzzleServer
             e.printStackTrace();
         }
     }
+    }
+
+    private String parseContents(String message)
+    {
+        String[] parts = message.split(" ", 2);
+        try
+        {
+            return parts[1];  
+        }
+        catch (NumberFormatException e)
+        {
+            System.out.println("Error isolating message contents" + parts[1]);
+            //need to handle this error in run()
+            return "ERROR ERROR";
+        }
     }
 
     private byte parseCommand(String message)
@@ -132,7 +148,7 @@ public class PuzzleServer
                 String[] difficulty = message.split(":");
                 int numOfWords = Integer.parseInt(difficulty[0]);
                 int factor =  Integer.parseInt(difficulty[1]);
-                out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); \
+                out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); 
                 handleSetupLevel(numOfWords, factor);
                 //logic to contact word repo   
             }
@@ -160,10 +176,9 @@ public class PuzzleServer
             break;
 
             case ProtocolConstants.CMD_CHECK_IF_WORD_EXISTS:
-            
             try{
-                boolean exists = false;
-                exists = checkIfWordExists(message);
+                String exists;
+                exists = contactWordRepository(cmdCode, message);
                 out.println("Does the word " + message + " exist in the word repo? : " + exists);
                 }
                 catch(Exception e)
@@ -171,15 +186,16 @@ public class PuzzleServer
                     System.out.println("Error verifying word with repo: " + message);
                     out.println("Word could not be validated please try again");
                 }
-            // logic to contact word repo and verify existence of word
             break;
 
             case ProtocolConstants.CMD_ADD_WORD:
-            addWordToRepo(message);
+            String added = contactWordRepository(cmdCode, message);
+            sendMessage(out, ProtocolConstants.CMD_SND_Mischellaneous, message + " added?: " + added);
             break;
 
             case ProtocolConstants.CMD_REMOVE_WORD:
-            removeWordFromRepo(message);
+            String removed = contactWordRepository(cmdCode, message);
+            sendMessage(out, ProtocolConstants.CMD_SND_Mischellaneous, message + " removed?: " + removed);
             break;
 
             default:
@@ -208,7 +224,7 @@ public class PuzzleServer
     {
         try
         {
-            sendMessage(out, ProtocolConstants.CMD_SND_WELCOME, "Welcome " + message + "to the Word Puzzle Game Server!");
+            sendMessage(out, ProtocolConstants.CMD_SND_WELCOME, "Welcome " + message + " to the Word Puzzle Game Server!");
         }
         catch(Exception e)
         {
@@ -243,21 +259,8 @@ public class PuzzleServer
 
     }
 
-    void checkIfWordExists(String message)
-    {
 
-    }
-
-    void  addWordToRepo(String message)
-    {
-
-    }
-
-    void removeWordFromRepo(String message)
-    {
-
-    }
-
+   
     private void sendMessage(PrintStream out, byte cmdCode, String message)
     {
         try
@@ -274,6 +277,33 @@ public class PuzzleServer
     }
 
 
+    private String contactWordRepository(byte cmdCode, String message)
+    {
+        try(DatagramSocket socket = new DatagramSocket())
+        {
+            InetAddress address = InetAddress.getByName("localhost");
+        
+            String fullMessage = String.format("%02X %s%s", cmdCode, message, ProtocolConstants.MSG_TERMINATOR);
+            byte[] buffer = fullMessage.getBytes();
+
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length, address, 9090);
+            socket.send(request);
+
+            byte[] responseBuffer = new byte[1024];
+            DatagramPacket response = new DatagramPacket(responseBuffer, responseBuffer.length);
+            socket.receive(response);
+
+            return new String(response.getData(), 0, response.getLength()).trim();
+        }
+        catch (IOException e) 
+        {
+            System.err.println("Error communicating with WordRepoMicroservice: " + e.getMessage());
+            return "ERROR"; 
+        }
+
+    }
+    }
 
 
-}
+
+
