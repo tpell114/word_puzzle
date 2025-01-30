@@ -54,6 +54,7 @@ public class ClientV3 {
 
                     case "3":
                         System.out.println("\nModifying word repository...");
+                        client.modifyWordRepo();
                         break;
 
                     case "4":
@@ -147,6 +148,22 @@ public class ClientV3 {
                                     + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
                 guess = System.console().readLine();
             }
+        }
+    }
+
+    private void modifyWordRepo() {
+
+        System.out.println("\nAdd words to the repo by prefixing a word with '+'  eg. +apple\n"
+                            + "remove words from the repo by prefixing a word with '-' eg. -tomato\n");
+
+        String input = System.console().readLine();
+
+        if (input.charAt(0) == '+') {
+            this.sendToServer(ProtocolConstants.CMD_ADD_WORD, input.substring(1));
+            this.readFromServer();
+        } else if (input.charAt(0) == '-') {
+            this.sendToServer(ProtocolConstants.CMD_REMOVE_WORD, input.substring(1));
+            this.readFromServer();
         }
     }
 }
