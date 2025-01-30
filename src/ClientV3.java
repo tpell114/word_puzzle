@@ -38,7 +38,8 @@ public class ClientV3 {
                 System.out.println("\nSelect from the following options:\n"
                                     +"1. Play a new game\n"
                                     +"2. View statistics\n"
-                                    +"3. Exit\n");
+                                    +"3. Modify word repository\n"
+                                    +"4. Exit\n");
                 option = System.console().readLine();
 
                 switch (option) {
@@ -52,6 +53,10 @@ public class ClientV3 {
                         break;
 
                     case "3":
+                        System.out.println("\nModifying word repository...");
+                        break;
+
+                    case "4":
                         System.out.println("\nGoodbye!");
                         client.sendToServer(ProtocolConstants.CMD_EXIT, "\0");
                         exitFlag = true;
