@@ -31,7 +31,6 @@ public class ClientV2 {
             client.sendToServer(ProtocolConstants.CMD_SIGN_IN, name);
             client.readFromServer();
             
-
             Boolean exitFlag = false;
 
             while (!exitFlag) {
@@ -145,13 +144,13 @@ public class ClientV2 {
         switch (cmdCode)
         {
             case ProtocolConstants.CMD_SND_Mischellaneous:
-            displayServerMessage(contents);
-            break;
+                displayServerMessage(contents);
+                break;
 
             case ProtocolConstants.CMD_SND_PUZZLE:
-            System.out.println("\nGAME STATE PLAY\n"
-                             + "Puzzle:\n"
-                             + contents);
+                System.out.println("\nGAME STATE PLAY\n"
+                                + "Puzzle:\n"
+                                + contents);
         }
 
     }
