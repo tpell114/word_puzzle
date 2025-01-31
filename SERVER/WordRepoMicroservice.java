@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class WordRepoMicroservice 
 {
@@ -31,11 +32,19 @@ public class WordRepoMicroservice
     {
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath)))
         {
+            Pattern pattern = Pattern.compile("^[A-Za-z]+$");
+
             String line;
             while ((line = reader.readLine()) != null)
             {
-                words.add(line.trim());
+                line = line.trim();
+
+                if(pattern.matcher(line).matches())
+                {
+                words.add(line.toLowerCase());
+                }
             }
+            updateWordFile("words.txt");
 
         }
         catch(Exception e)
@@ -78,7 +87,12 @@ public class WordRepoMicroservice
 
     public boolean addWord(String word) 
     {
-        word = word.toLowerCase();
+        word = word.toLowerCase().trim();
+
+        if (!word.matches("^[a-z]+$")) {
+            System.out.println(word + " is NOT added because it contains non-alphabetic characters.");
+            return false;
+        }
 
         boolean exists = binarySearch(words, word);
 
@@ -88,6 +102,7 @@ public class WordRepoMicroservice
 
             words.add(position, word);
             System.out.println(word + " has been added");
+            updateWordFile("words.txt");
             return true;
            
         }
@@ -108,9 +123,12 @@ public class WordRepoMicroservice
             if(position != -1)
             {
             words.remove(position);
+            System.out.println(word + " has been removed");
+            updateWordFile("words.txt");
             return true;
             }
         }
+        System.out.println(word + " has NOT been removed as it does not exist in the word file");
         return false;
     }
 
@@ -181,19 +199,10 @@ public class WordRepoMicroservice
                 String message = new String(request.getData(), 0, request.getLength());
                 System.out.println("Recieved: " + message);
 
-               boolean responseBool = processRequest(message);
-               String responseString;
 
-               if (responseBool == true)
-               {
-               responseString = "true";
-               }
-               else
-               { 
-               responseString = "false";
-               }
+               String response = processRequest(message);
 
-                byte[] responseBytes = responseString.getBytes();
+                byte[] responseBytes = response.getBytes();
 
                 DatagramPacket reply = new DatagramPacket(responseBytes, responseBytes.length, request.getAddress(), request.getPort());
                 socket.send(reply);
@@ -207,7 +216,18 @@ public class WordRepoMicroservice
         }
     }
 
-    private boolean processRequest(String message)
+    private String convertBoolToString(boolean response)
+    {
+        if(response == true)
+        {
+            return "true";
+        }
+        else
+        return "false";
+    }
+    
+
+    private String processRequest(String message)
     {
         byte cmdCode;
         String contents;
@@ -221,17 +241,24 @@ public class WordRepoMicroservice
             switch (cmdCode)
             {
                 case ProtocolConstants.CMD_CHECK_IF_WORD_EXISTS:
-                return wordExists(contents);
+                isTrue = wordExists(contents);
+                return convertBoolToString(isTrue);
 
                 case ProtocolConstants.CMD_ADD_WORD:
-                return addWord(contents);
+                isTrue = addWord(contents);
+                return convertBoolToString(isTrue);
 
                 case ProtocolConstants.CMD_REMOVE_WORD:
-                return removeWord(contents);
+                isTrue = removeWord(contents);
+                return convertBoolToString(isTrue);
+
+                case ProtocolConstants.CMD_GET_STEM_WORD:
+                String stem = getStemWord(contents);
+                
 
                 default:
                 System.out.println("Recieved unrecognized command and message: " + cmdCode + " " + message);
-                return false;
+                return "Recieved unrecognized command and message: " + cmdCode + " " + message;
               //  out.println("ERROR: Unrecognized command and message:" + cmdCode + " " + message) 
             }
 
@@ -239,11 +266,35 @@ public class WordRepoMicroservice
         catch (Exception e)
         {
             System.out.println("Invalid cmd format" + parts[0]);
-            return false; //need to handle this error in run()
+            return "Invalid cmd format" + parts[0];
         }
     }
 
+    private String getStemWord(String constraints)
+    {
+        String stem;
+
+
+        return stem;
+    }
+
+    private void updateWordFile(String filePath)
+    {
+        try(PrintWriter writer = new PrintWriter(new FileWriter(filePath)))
+        {
+            for(String w : words)
+            {
+                writer.println(w);
+            }
+        }
+            catch(IOException e)
+            {
+                System.err.println("Error writing words to disk: " + e.getMessage());
+            }
+    }
 }
+
+
 
 
 

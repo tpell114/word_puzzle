@@ -1,5 +1,6 @@
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -85,7 +86,7 @@ public class PuzzleServer
             String inputMsg;
             while ((inputMsg = in.readLine()) != null) 
             {
-                //System.out.println("Received:" + inputMsg);                        //FOR TESTING
+                System.out.println("Received:" + inputMsg);                        //FOR TESTING
                 byte cmdCode = parseCommand(inputMsg);
                 String msgContents = parseContents(inputMsg);
                 handleClientReq(cmdCode, msgContents, out, clientSocket);
@@ -143,20 +144,20 @@ public class PuzzleServer
             break;
 
             case ProtocolConstants.CMD_LEVEL_SET:
-            try
-            {
-                String[] difficulty = message.split(":");
-                int numOfWords = Integer.parseInt(difficulty[0]);
-                int factor =  Integer.parseInt(difficulty[1]);
-                out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); 
-                handleSetupLevel(numOfWords, factor);
+           // try
+           // {
+              //  String[] difficulty = message.split(":",2);
+              //  int numOfWords = Integer.parseInt(difficulty[0]);
+              //  int factor =  Integer.parseInt(difficulty[1]);
+               // out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); 
+                handleSetupLevel();//(numOfWords, factor);
                 //logic to contact word repo   
-            }
-            catch(Exception e)
-            {
-                System.out.println("Invalid level set parameters: " + message);
-                out.println("Error: Invalid level parameters. Use format 'n:f'");
-            }
+          //  }
+          //  catch(Exception e)
+          //  {
+          //      System.out.println("Invalid level set parameters: " + message);
+          //      out.println("Error: Invalid level parameters. Use format 'n:f'");
+          //  }
             break;
 
             case ProtocolConstants.CMD_SUBMIT_GUESS:
@@ -189,17 +190,21 @@ public class PuzzleServer
             break;
 
             case ProtocolConstants.CMD_ADD_WORD:
+            System.out.println("Request to ADD " + message + " received");
             String added = contactWordRepository(cmdCode, message);
-            sendMessage(out, ProtocolConstants.CMD_SND_Mischellaneous, message + " added?: " + added);
+            System.out.println("Sent " + message + " to word repo and received: " + added); 
+            sendMessage(out, ProtocolConstants.CMD_SND_MISCELLANEOUS, message + " added?: " + added);
             break;
 
             case ProtocolConstants.CMD_REMOVE_WORD:
+            System.out.println("Request to REMOVE " + message + " received");
             String removed = contactWordRepository(cmdCode, message);
-            sendMessage(out, ProtocolConstants.CMD_SND_Mischellaneous, message + " removed?: " + removed);
+            System.out.println("sent " + message + " to word repo and received: " + removed); 
+            sendMessage(out, ProtocolConstants.CMD_SND_MISCELLANEOUS, message + " removed?: " + removed);
             break;
 
             default:
-            System.out.println("Recieved unrecognized command and message: " + cmdCode + " " + message);
+            System.out.println("received unrecognized command and message: " + cmdCode + " " + message);
             out.println("ERROR: Unrecognized command and message:" + cmdCode + " " + message);
             break;
         }
@@ -209,7 +214,7 @@ public class PuzzleServer
     {
         try 
         {
-        sendMessage(out, ProtocolConstants.CMD_SND_Mischellaneous, "Terminating connection"); 
+        sendMessage(out, ProtocolConstants.CMD_SND_MISCELLANEOUS, "Terminating connection"); 
            clientSocket.close();
            System.out.println("Client connection closed");
         }
@@ -224,7 +229,7 @@ public class PuzzleServer
     {
         try
         {
-            sendMessage(out, ProtocolConstants.CMD_SND_WELCOME, "Welcome " + message + " to the Word Puzzle Game Server!");
+            sendMessage(out, ProtocolConstants.CMD_SND_MISCELLANEOUS, "Server: Welcome " + message + " to the Word Puzzle Game Server!");
         }
         catch(Exception e)
         {
@@ -234,8 +239,18 @@ public class PuzzleServer
 
     }
 
-    void handleSetupLevel(int numOfWords, int factor)
+    void handleSetupLevel()//int numOfWords, int factor)
     {
+       ArrayList<String> howords = new ArrayList<>();
+
+       howords.add("system");
+       howords.add("reliable");
+       howords.add("design");
+
+       PuzzleObject testpzl = new PuzzleObject(3);
+       String HI = PuzzleObject.displayPuzzle( howords, "distributed");
+
+       System.out.println("howards" + howords);
 
     }
 

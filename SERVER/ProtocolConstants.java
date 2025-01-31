@@ -8,6 +8,8 @@ public class ProtocolConstants {
    public static final byte CMD_CHECK_SCORE = 0x05;
    public static final byte CMD_REQ_NEW_GAME = 0x06;
    public static final byte CMD_ABORT_GAME = 0x07;
+
+   //client to server && server to wordrepo
    public static final byte CMD_CHECK_IF_WORD_EXISTS = 0x08;
    public static final byte CMD_ADD_WORD = 0x09;
    public static final byte CMD_REMOVE_WORD = 0x0A;
@@ -20,7 +22,13 @@ public class ProtocolConstants {
     public static final byte CMD_SND_SCORE = 0x15;
     public static final byte CMD_SND_ENDGAME = 0x16;
     public static final byte CMD_SND_FAIL_ATTEMPT = 0x17;
-    public static final byte CMD_SND_Mischellaneous= 0x18;
+    public static final byte CMD_SND_MISCELLANEOUS= 0x18; 
+
+    //server to word repo
+    public static final byte CMD_GET_RANDOM_WORD = 0x19;
+    public static final byte CMD_GET_STEM_WORD = 0x1A;
+  
+
 
     // Message format constants
     public static final String MSG_TERMINATOR = "\n";
