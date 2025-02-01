@@ -88,7 +88,9 @@ public class PuzzleServer
             {
                 System.out.println("Received:" + inputMsg);                        //FOR TESTING
                 byte cmdCode = parseCommand(inputMsg);
+                System.out.println("byte is:" + cmdCode);
                 String msgContents = parseContents(inputMsg);
+                System.out.println("contents is:" + msgContents);
                 handleClientReq(cmdCode, msgContents, out, clientSocket);
             }
         
@@ -144,20 +146,27 @@ public class PuzzleServer
             break;
 
             case ProtocolConstants.CMD_LEVEL_SET:
-           // try
-           // {
-              //  String[] difficulty = message.split(":",2);
-              //  int numOfWords = Integer.parseInt(difficulty[0]);
-              //  int factor =  Integer.parseInt(difficulty[1]);
-               // out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); 
-                handleSetupLevel();//(numOfWords, factor);
-                //logic to contact word repo   
-          //  }
-          //  catch(Exception e)
-          //  {
-          //      System.out.println("Invalid level set parameters: " + message);
-          //      out.println("Error: Invalid level parameters. Use format 'n:f'");
-          //  }
+            try
+            {
+                String[] difficulty = message.split(":",2);
+
+                if (difficulty.length < 2) {
+                    throw new IllegalArgumentException("Input does not contain the expected ':' delimiter.");
+                }
+
+                //int numOfWords = Integer.parseInt(difficulty[0].trim());
+                String numOfWords = difficulty[0].trim();
+
+                int factor =  Integer.parseInt(difficulty[1].trim());
+
+                out.println("Contacting word repository to setup level with " + numOfWords + "number or words" + "and a difficulty factor of" + factor); 
+                handleSetupLevel(numOfWords, factor); //(numOfWords, factor);   
+             }
+            catch(Exception e)
+            {
+                System.out.println("Invalid level set parameters: " + message);
+                out.println("Error: Invalid level parameters. Use format 'n:f'");
+            }
             break;
 
             case ProtocolConstants.CMD_SUBMIT_GUESS:
@@ -239,20 +248,53 @@ public class PuzzleServer
 
     }
 
-    void handleSetupLevel()//int numOfWords, int factor)
+    public static String getRandomWord()
     {
-       ArrayList<String> howords = new ArrayList<>();
+        return contactWordRepository(ProtocolConstants.CMD_GET_RANDOM_WORD, "dummy");
+    }
 
-       howords.add("system");
-       howords.add("reliable");
-       howords.add("design");
 
-       PuzzleObject testpzl = new PuzzleObject(3);
-       String HI = PuzzleObject.displayPuzzle( howords, "distributed");
 
-       System.out.println("howards" + howords);
+
+
+
+
+
+
+
+
+    private void handleSetupLevel(String numOfWords, int factor)
+    {
+        String stem = contactWordRepository(ProtocolConstants.CMD_GET_STEM_WORD, numOfWords);
+
+        ArrayList<String> solvedPuzzle = PuzzleObject.generatePuzzle(stem, numOfWords);
+
+        String formattedPuzzle = formatPuzzle(solvedPuzzle, stem);
+       
+        System.out.println(solvedPuzzle);
+    }
+
+    public String formatPuzzle(ArrayList<String> words, String stem)
+    {
+        int spaces = 0;
+        int levels = stem.length() - 1;
+        for(String word : words)
+        {
+            if(word.length() > spaces)
+            {
+                spaces = word.length();
+            }
+        }
+
+        for(int i = 0; i < stem.length(); i++)
+        {
+            //logic to do placeholderstuff
+        }
 
     }
+
+
+
 
     void handleClientGuess()
     {
@@ -292,7 +334,7 @@ public class PuzzleServer
     }
 
 
-    private String contactWordRepository(byte cmdCode, String message)
+    private static String contactWordRepository(byte cmdCode, String message)
     {
         try(DatagramSocket socket = new DatagramSocket())
         {

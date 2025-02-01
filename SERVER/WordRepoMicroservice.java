@@ -7,7 +7,7 @@ public class WordRepoMicroservice
 {
     private static final int PORT = 9090;
 
-    private List<String> words;
+    private static List<String> words;
 
     public static void main(String[] args)
     {
@@ -132,10 +132,31 @@ public class WordRepoMicroservice
         return false;
     }
 
-    //private String[] words(int numOfWords)
-  //  {
+    public static  String returnRandomWord()
+    {
+        Random random = new Random();
+        int index = random.nextInt(words.size());
+        return words.get(index);
+    }
 
-  //  }
+    private String getStemWord(String numOfWords) 
+    {
+        int intNumOfWords = Integer.parseInt(numOfWords);
+        String stem = "";
+
+        if (intNumOfWords > 0) 
+        {
+            while (stem.length() < ((intNumOfWords - 1) * 2)) 
+            {
+                stem = returnRandomWord();
+            }
+        } else
+        {
+            System.out.println("congratulations you have crashed the program ");
+        }
+        System.out.println("\n\nSTEM WORD IS "+ stem);
+        return stem;
+    }
 
     private int findInsertPosition(String word)
     {
@@ -233,11 +254,9 @@ public class WordRepoMicroservice
         String contents;
         String[] parts = message.split(" ", 2);
         boolean isTrue;
-        try
-        {
             cmdCode = (byte) Integer.parseInt(parts[0], 16);  
-            contents = (parts[1]);
-
+            contents = parts[1].trim();
+            try {
             switch (cmdCode)
             {
                 case ProtocolConstants.CMD_CHECK_IF_WORD_EXISTS:
@@ -254,29 +273,30 @@ public class WordRepoMicroservice
 
                 case ProtocolConstants.CMD_GET_STEM_WORD:
                 String stem = getStemWord(contents);
+                return stem;
+
+                case ProtocolConstants.CMD_GET_RANDOM_WORD:
+                String randWord = returnRandomWord();
+                return randWord;
                 
 
                 default:
                 System.out.println("Recieved unrecognized command and message: " + cmdCode + " " + message);
-                return "Recieved unrecognized command and message: " + cmdCode + " " + message;
-              //  out.println("ERROR: Unrecognized command and message:" + cmdCode + " " + message) 
+                return "doggies";
             }
+        }
+            catch(NumberFormatException e)
+            {
+                System.out.println("Invalid command code format: " + parts[0]);
+                return "Ifailedyou";
+            }
+                
+            
 
-        }
-        catch (Exception e)
-        {
-            System.out.println("Invalid cmd format" + parts[0]);
-            return "Invalid cmd format" + parts[0];
-        }
+        
     }
 
-    private String getStemWord(String constraints)
-    {
-        String stem;
-
-
-        return stem;
-    }
+   
 
     private void updateWordFile(String filePath)
     {
