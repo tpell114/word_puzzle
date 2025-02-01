@@ -54,6 +54,13 @@ public class PuzzleObject
                 }
             }
         }
+
+        while (stemIndex < stem.length()) {
+            puzzleStructure.add(String.valueOf(stem.charAt(stemIndex)));
+            stemIndex++;
+        }
+
+        
         System.out.println("Puzzle struct is : " + puzzleStructure);
         return puzzleStructure;
     }
