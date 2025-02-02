@@ -94,7 +94,7 @@ public class ClientV4 {
 
         try {
             rawResponse = fromServer.readLine();
-            System.out.println("=====Received: " + rawResponse);
+            //System.out.println("=====Received: " + rawResponse);
             response = rawResponse.split(" ", 2);
             this.handleResponse(response[0], response[1]);
 

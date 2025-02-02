@@ -159,17 +159,26 @@ public class Server_V2 {
         private void handleSubmitGuess(String guess){
 
             String trimmedGuess = guess.trim();
+            Boolean solvedFlag;
 
             if (trimmedGuess.length() == 1) {
 
-                Boolean solvedFlag = puzzle.guessChar(trimmedGuess.charAt(0));
+                solvedFlag = puzzle.guessChar(trimmedGuess.charAt(0));
 
                 if (!solvedFlag) {
                     sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
                 } else {
                     sendMessage(ProtocolConstantsV2.CMD_SND_ENDGAME, puzzle.getPuzzleSlaveString());
                 }
+            } else {
 
+                solvedFlag = puzzle.guessWord(trimmedGuess);
+
+                if (!solvedFlag) {
+                    sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                } else {
+                    sendMessage(ProtocolConstantsV2.CMD_SND_ENDGAME, puzzle.getPuzzleSlaveString());
+                }
             }
 
         }

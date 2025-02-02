@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PuzzleObjectV3 {
@@ -120,13 +121,47 @@ public class PuzzleObjectV3 {
             }
         }
 
-        //prob does not work
-        if (puzzleSlave.equals(puzzleMaster)) {
+        if (Arrays.deepEquals(puzzleSlave, puzzleMaster)) {
             return true;
         }
         return false;
     }
 
+    public Boolean guessWord(String guess){
+
+        System.out.println("Guessing " + guess);
+
+        if (guess.equals(this.stem)) {
+            for (int i = 0; i < puzzleMaster.length; i++) {
+                puzzleSlave[i][puzzleMaster[i].length/2] = stem.charAt(i);
+            }
+        } else if (horizontalWords.contains(guess)) {
+
+            System.out.println("Found " + guess);
+
+            for (int i = 0; i < puzzleMaster.length; i += 2) {
+
+                String line = "";
+
+                for (int j = 0; j < puzzleMaster[i].length; j++) {
+                    line += puzzleMaster[i][j];
+                }
+
+                if (line.contains(guess)) {
+                    for (int j = 0; j < puzzleMaster[i].length; j++) {
+                        puzzleSlave[i][j] = puzzleMaster[i][j];
+                    }
+                }
+            }
+
+        }
+
+
+        if (Arrays.deepEquals(puzzleSlave, puzzleMaster)) {
+            return true;
+        }
+        return false;
+    }
 
 
     private static String contactWordRepository(String cmdCode, String message){
