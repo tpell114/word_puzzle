@@ -11,8 +11,8 @@ public class PuzzleObjectV3 {
     private int difficultyFactor;
     private String stem;
     private List<String> horizontalWords = new ArrayList<>();
-    private char[][] puzzle;
-
+    private char[][] puzzleMaster;
+    private char[][] puzzleSlave;
 
     PuzzleObjectV3(int numWords, int difficultyFactor){
         this.numWords = numWords;
@@ -25,11 +25,12 @@ public class PuzzleObjectV3 {
             if (horizontalWords.size() == numWords - 1) break;
         }
 
-        this.initPuzzle();
+        this.initPuzzleMaster();
+        this.initPuzzleSlave();
     }
 
 
-    private void initPuzzle(){
+    private void initPuzzleMaster(){
 
         System.out.println(stem);
         System.out.println(horizontalWords);
@@ -44,35 +45,87 @@ public class PuzzleObjectV3 {
         }
 
         int xSize = longest.length() * 2;
-        this.puzzle = new char[ySize][xSize];
+        this.puzzleMaster = new char[ySize][xSize];
 
         for (int i = 0; i < ySize; i++) {
             for (int j = 0; j < xSize; j++) {
-                puzzle[i][j] = '-';
+                puzzleMaster[i][j] = '.';
             }
         }
 
-        //for (int i = 0; i < ySize; i++) {
-        //    puzzle[i][xSize/2] = stem.charAt(i);
-        //}
-/* 
+        for (int i = 0; i < ySize; i++) {
+            puzzleMaster[i][xSize/2] = stem.charAt(i);
+        }
+
+        int stemIndex = 0;
         for (int i = 0; i < horizontalWords.size(); i++) {
 
             String word = horizontalWords.get(i);
-            int stemIndex = 0;
-            char intersectChar = stem.charAt(i);
+            char intersectChar = stem.charAt(stemIndex);
+            int offset = word.indexOf(intersectChar);
+            int startColumn = xSize/2 - offset;
 
-            
+            for (int j = 0; j < word.length(); j++) {
+                puzzleMaster[stemIndex][startColumn + j] = word.charAt(j);
+            }
+
+            stemIndex += 2;
         }
-   */     
+     
 
-        for (char[] row : puzzle) {
+        for (char[] row : puzzleMaster) {
             System.out.println(new String(row));
         }
 
     }
 
+    private void initPuzzleSlave(){
 
+        puzzleSlave = new char[puzzleMaster.length][puzzleMaster[0].length];
+
+        for (int i = 0; i < puzzleSlave.length; i++) {
+            for (int j = 0; j < puzzleSlave[i].length; j++) {
+                if (puzzleMaster[i][j] == '.') {
+                    puzzleSlave[i][j] = '.';
+                } else {
+                    puzzleSlave[i][j] = '-';
+                }
+            }
+        }
+
+        for (char[] row : puzzleSlave) {
+            System.out.println(new String(row));
+        }
+        
+    }
+
+    public String getPuzzleSlaveString(){
+        String returnString = "";
+        for (char[] row : puzzleSlave) {
+            returnString += new String(row) + "+";
+        }
+        return returnString;
+    }
+
+    public Boolean guessChar(char guess){
+
+        System.out.println("Guessing " + guess);
+
+        for (int i = 0; i < puzzleMaster.length; i++) {
+            for (int j = 0; j < puzzleMaster[i].length; j++) {
+                if (puzzleMaster[i][j] == guess) {
+                    System.out.println("Found " + guess + " at (" + i + ", " + j + ")");
+                    puzzleSlave[i][j] = guess;
+                }
+            }
+        }
+
+        //prob does not work
+        if (puzzleSlave.equals(puzzleMaster)) {
+            return true;
+        }
+        return false;
+    }
 
 
 

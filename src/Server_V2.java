@@ -39,6 +39,7 @@ public class Server_V2 {
         private BufferedReader fromClient;
         private PrintStream toClient;
         private Map<String, Integer> users;
+        private PuzzleObjectV3 puzzle;
 
         ClientHandler(Socket socket, Map<String, Integer> users) {
 
@@ -84,6 +85,9 @@ public class Server_V2 {
                             handleLevelSet(parts[1]);
                             break;
                     
+                        case ProtocolConstantsV2.CMD_SUBMIT_GUESS:
+                            handleSubmitGuess(parts[1]);
+                            break;
                         default:
                             break;
                     }
@@ -147,11 +151,28 @@ public class Server_V2 {
             int difficultyFactor = Integer.parseInt(args.split(":")[1]);
 
             System.out.println("Setting up puzzle with " + numOfWords + " number of words and a difficulty factor of " + difficultyFactor); 
-            PuzzleObjectV3 puzzle = new PuzzleObjectV3(numOfWords, difficultyFactor);
+            puzzle = new PuzzleObjectV3(numOfWords, difficultyFactor);
 
+            sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
         }
 
-        
+        private void handleSubmitGuess(String guess){
+
+            String trimmedGuess = guess.trim();
+
+            if (trimmedGuess.length() == 1) {
+
+                Boolean solvedFlag = puzzle.guessChar(trimmedGuess.charAt(0));
+
+                if (!solvedFlag) {
+                    sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                } else {
+                    sendMessage(ProtocolConstantsV2.CMD_SND_ENDGAME, puzzle.getPuzzleSlaveString());
+                }
+
+            }
+
+        }
 
 
 

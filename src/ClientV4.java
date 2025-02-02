@@ -112,8 +112,16 @@ public class ClientV4 {
                 break;
 
             case ProtocolConstantsV2.CMD_SND_PUZZLE:
-                //todo
+                this.printPuzzle(contents);
                 break;
+        }
+    }
+
+    private void printPuzzle(String contents) {
+        String[] lines = contents.split("\\+");
+
+        for (String line : lines) {
+            System.out.println(line);
         }
     }
 
