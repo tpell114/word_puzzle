@@ -44,20 +44,27 @@ public class PuzzleObjectV3 {
         }
 
         int xSize = longest.length() * 2;
-        this.puzzle = new char[xSize][ySize];
+        this.puzzle = new char[ySize][xSize];
 
         for (int i = 0; i < ySize; i++) {
-            puzzle[i][xSize/2] = stem.charAt(i);
+            for (int j = 0; j < xSize; j++) {
+                puzzle[i][j] = '-';
+            }
         }
 
+        //for (int i = 0; i < ySize; i++) {
+        //    puzzle[i][xSize/2] = stem.charAt(i);
+        //}
+/* 
         for (int i = 0; i < horizontalWords.size(); i++) {
 
             String word = horizontalWords.get(i);
+            int stemIndex = 0;
             char intersectChar = stem.charAt(i);
 
             
         }
-        
+   */     
 
         for (char[] row : puzzle) {
             System.out.println(new String(row));
