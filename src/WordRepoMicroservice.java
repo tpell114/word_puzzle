@@ -23,6 +23,12 @@ public class WordRepoMicroservice {
         wordRepo.runUDPServer();
     }
 
+    /**
+     * Runs a UDP server that listens for incoming datagram packets on a specified port.
+     * Continuously receives messages from clients, processes each message, and sends
+     * a response back to the client. Handles any IOExceptions that occur during
+     * the operation of the server.
+     */
     private void runUDPServer()
     {
         try(DatagramSocket socket = new DatagramSocket(PORT)){
@@ -46,6 +52,13 @@ public class WordRepoMicroservice {
         }
     }
 
+    /**
+     * Loads a list of words from a specified file and stores them in memory.
+     * The file is expected to have one word per line. Prints the number of words
+     * loaded to the console. If there is an error reading the file, prints the
+     * error message to the console.
+     * @param filepath the name of the file to load words from
+     */
     private void loadWords(String filepath) {
 
         System.out.println("Loading words from file: " + filepath);
@@ -65,6 +78,17 @@ public class WordRepoMicroservice {
         }
     }
 
+    /**
+     * Processes a request received from a client via UDP. The request is a string
+     * in the format "<command code> <contents>" where <command code> is a string
+     * that specifies the type of operation to be performed and <contents> is a
+     * string that contains any additional information needed to perform the
+     * operation. The method performs the requested operation and returns a string
+     * containing the result of the operation.
+     * 
+     * @param message the request received from the client
+     * @return the result of the requested operation
+     */
     private String processRequest(String message){
 
         String cmdCode = message.split(" ")[0];
@@ -99,6 +123,12 @@ public class WordRepoMicroservice {
         return null;
     }
 
+    /**
+     * Returns a word from the word repository of length at least minLength.
+     * 
+     * @param minLength the minimum length of the word to be returned
+     * @return a word from the word repository of length at least minLength
+     */
     private String getWord(int minLength){
 
         Random random = new Random();
@@ -113,6 +143,13 @@ public class WordRepoMicroservice {
         return word;
     }
 
+    /**
+     * Returns a word from the word repository that contains the given character.
+     * The word is randomly chosen from the repository.
+     * 
+     * @param contains the character to search for in the word
+     * @return a word from the word repository that contains the given character
+     */
     private String getWord(String contains){
 
         Random random = new Random();
@@ -127,6 +164,12 @@ public class WordRepoMicroservice {
         return word;
     }
 
+    /**
+     * Checks if a given word exists in the word repository.
+     * 
+     * @param word the word to check
+     * @return "1" if the word exists, "0" otherwise
+     */
     private String handleWordExists(String word){
 
         if (words.contains(word.toLowerCase())) {
@@ -139,6 +182,12 @@ public class WordRepoMicroservice {
         return "0";
     }
 
+    /**
+     * Adds a word to the word repository if it does not already exist.
+     * 
+     * @param word the word to add
+     * @return "1" if the word was added, "0" otherwise
+     */
     private String handleWordAdd(String word){
 
        int index = Collections.binarySearch(words, word.toLowerCase());
@@ -154,6 +203,12 @@ public class WordRepoMicroservice {
         return "0";
     }
 
+    /**
+     * Removes a word from the word repository if it exists.
+     * 
+     * @param word the word to remove
+     * @return "1" if the word was removed, "0" otherwise
+     */
     private String handleWordRemove(String word){
 
         int index = Collections.binarySearch(words, word.toLowerCase());
@@ -167,16 +222,4 @@ public class WordRepoMicroservice {
         System.out.println("Word does not exist: " + word);
         return "0";
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-

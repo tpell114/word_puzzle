@@ -35,6 +35,16 @@ public class PuzzleObject {
     }
 
 
+    /**
+     * Initializes the puzzleMaster 2D array with the given stem and horizontal words.
+     * The puzzleMaster is a 2D array of characters, where each row represents a line
+     * in the puzzle and each column represents a letter in the puzzle.
+     * The puzzleMaster is initialized such that each row has enough columns to fit the
+     * longest horizontal word, and each column is initialized with a '.' character.
+     * The stem is then placed vertically in the middle of the puzzleMaster, and each
+     * horizontal word is placed at the correct position in the puzzleMaster such that
+     * the intersecting letter of the horizontal word and the stem lines up.
+     */
     private void initPuzzleMaster(){
 
         System.out.println(stem);
@@ -84,6 +94,13 @@ public class PuzzleObject {
 
     }
 
+    /**
+     * Initializes the puzzleSlave 2D array with the same dimensions as the
+     * puzzleMaster. The puzzleSlave is initialized such that any '.' character
+     * in the puzzleMaster is replaced with a '.' character in the puzzleSlave
+     * and any other character in the puzzleMaster is replaced with a '-'
+     * character in the puzzleSlave.
+     */
     private void initPuzzleSlave(){
 
         puzzleSlave = new char[puzzleMaster.length][puzzleMaster[0].length];
@@ -104,6 +121,15 @@ public class PuzzleObject {
         
     }
 
+    /**
+     * Constructs a string representation of the puzzleSlave grid.
+     * Each row of the puzzleSlave grid is concatenated into a string,
+     * with rows separated by a '+' character. Additionally, appends
+     * the current guess counter to the end of the string.
+     *
+     * @return A string representation of the puzzleSlave grid with 
+     *         the guess counter appended.
+     */
     public String getPuzzleSlaveString(){
         String returnString = "";
         for (char[] row : puzzleSlave) {
@@ -113,6 +139,16 @@ public class PuzzleObject {
         return returnString;
     }
 
+    /**
+     * Processes a character guess in the puzzle.
+     * Decrements the guess counter and checks if the guessed character
+     * is present in the puzzleMaster grid. If found, updates the corresponding
+     * positions in the puzzleSlave grid with the guessed character.
+     * 
+     * @param guess The character guessed by the player.
+     * @return true if the puzzleSlave matches the puzzleMaster after the guess,
+     *         indicating the puzzle is solved; otherwise, returns false.
+     */
     public Boolean guessChar(char guess){
 
         System.out.println("Guessing " + guess);
@@ -133,6 +169,17 @@ public class PuzzleObject {
         return false;
     }
 
+    /**
+     * Processes a word guess in the puzzle.
+     * Decrements the guess counter and checks if the guessed word
+     * is either the stem word or one of the horizontal words in the puzzleMaster grid.
+     * If found, updates the corresponding positions in the puzzleSlave grid with the
+     * characters of the guessed word.
+     * 
+     * @param guess The word guessed by the player.
+     * @return true if the puzzleSlave matches the puzzleMaster after the guess,
+     *         indicating the puzzle is solved; otherwise, returns false.
+     */
     public Boolean guessWord(String guess){
 
         System.out.println("Guessing " + guess);
@@ -170,11 +217,27 @@ public class PuzzleObject {
         return false;
     }
 
+    /**
+     * Returns the current guess counter of the puzzle object.
+     * 
+     * @return The current guess counter.
+     */
     public int getGuessCounter(){
         return this.guessCounter;
     }
 
 
+    /**
+     * Communicates with the Word Repository microservice via UDP to send a command and message.
+     * Constructs a message by appending a command code and message with a terminator,
+     * then sends it to a predefined address and port. Waits for a response from the microservice.
+     * 
+     * @param cmdCode The command code to be sent to the Word Repository microservice.
+     * @param message The message associated with the command.
+     * @return The response from the Word Repository microservice as a trimmed string.
+     *         Returns "ERROR: Empty response" if the response received is empty.
+     *         Returns "ERROR" if an IOException occurs during communication.
+     */
     private static String contactWordRepository(String cmdCode, String message){
             
         try(DatagramSocket socket = new DatagramSocket()){
@@ -199,9 +262,6 @@ public class PuzzleObject {
         catch (IOException e) {
             System.err.println("Error communicating with WordRepoMicroservice: " + e.getMessage());
             return "ERROR"; 
-        }
-
-        
+        } 
     }
-
 }

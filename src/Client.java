@@ -72,6 +72,11 @@ public class Client {
         }
     }
 
+    /**
+     * Closes the client socket connection. 
+     * This method attempts to close the socket and catches any IOException that occurs, 
+     * printing the error message to the console.
+     */
     public void closeClient() {
         try {
             clientSocket.close();
@@ -80,10 +85,26 @@ public class Client {
         }
     }
 
+    /**
+     * Sends a command and message to the server.
+     * The message is formatted by concatenating the command code
+     * and the message with a space separator, then sent through
+     * the established PrintStream to the server.
+     *
+     * @param cmdCode The command code to be sent to the server.
+     * @param message The message associated with the command.
+     */
     private void sendToServer(String cmdCode, String message) {
 		toServer.println(cmdCode + " " + message);	
 	}
-
+    
+    /**
+     * Reads a response from the server and parses it into a command and message.
+     * The command and message are split by a space separator and passed to
+     * the handleResponse method to handle the command.
+     * 
+     * @throws IOException If an error occurs while reading from the server.
+     */
     private void readFromServer() {
 
         String[] response = null;
@@ -100,6 +121,14 @@ public class Client {
         }
     }
 
+    /**
+     * Handles the server response based on the command code received.
+     * Depending on the command code, it either prints the content, displays
+     * the puzzle, handles game win or loss scenarios, or shows the current score.
+     *
+     * @param cmdCode The command code indicating the type of response.
+     * @param contents The content or message associated with the command.
+     */
     private void handleResponse(String cmdCode, String contents)
     {
         switch (cmdCode)
@@ -126,6 +155,14 @@ public class Client {
         }
     }
 
+    /**
+     * Prints the puzzle to the console, split into its individual lines.
+     * This method takes a string containing the puzzle, splits it into
+     * individual lines using the '+' character as a separator, and prints
+     * each line to the console with a newline separator.
+     *
+     * @param contents The puzzle contents to be printed.
+     */
     private void printPuzzle(String contents) {
         
         String[] lines = contents.split("\\+");
@@ -136,18 +173,35 @@ public class Client {
         }
     }
 
+    /**
+     * Handles the server's game win message. Prints the final puzzle to the
+     * console and announces that the game is won.
+     *
+     * @param contents The puzzle contents to be printed.
+     */
     private void handleGameWin(String contents) {
         this.printPuzzle(contents);
         System.out.println("\nYou have won the game! 1 point added to your score.");
         gameOverFlag = true;
     }
 
+    /**
+     * Handles the server's game loss message. Prints the final puzzle to the
+     * console, announces that the game is lost.
+     *
+     * @param contents The puzzle contents to be printed.
+     */
     private void handleGameLoss(String contents) {
         this.printPuzzle(contents);
         System.out.println("\nYou have lost the game. 1 point deducted from your score.");
         gameOverFlag = true;
     }
 
+    /**
+     * Prompts the user to enter their name for signing into the server.
+     * The entered name is sent to the server using the sign-in command.
+     * After sending, it waits and reads the server's response.
+     */
     private void userSignIn() {
         System.out.println(Constants.USER_SIGN_IN_MESSAGE);
         String name = System.console().readLine();
@@ -155,6 +209,23 @@ public class Client {
         this.readFromServer();
     }
 
+    /**
+     * Starts a new game of Word Puzzle.
+     * Prompts the user to enter the number of words and the failed attempt factor.
+     * Then, it sends the input to the server and waits for the server's response.
+     * After receiving the response, it prints the puzzle to the console and
+     * prompts the user to guess a letter or a word.
+     * If the guess is a word, it checks if the word exists in the word repository
+     * and prints the result to the console.
+     * If the guess is a letter, it sends the guess to the server and waits for
+     * the server's response.
+     * If the server's response is that the game is over, it prints the final
+     * puzzle to the console and announces the result of the game.
+     * If the server's response is that the game is not over, it prints the updated
+     * puzzle to the console and prompts the user to guess again.
+     * If the user enters ~ to abort the game, it sends the abort command to the
+     * server and ends the game.
+     */
     private void playPuzzle() {
 
         gameOverFlag = false;
@@ -195,6 +266,16 @@ public class Client {
         }
     }
 
+    /**
+     * Modifies the word repository by allowing the user to add or remove words
+     * from the repository.
+     * The user is prompted to enter a command to add or remove a word.
+     * The command is either '+' to add a word or '-' to remove a word.
+     * The user is also prompted to enter a word to check if it exists in the
+     * repository.
+     * The user is then prompted to enter a new command or '~' to exit the
+     * word repository modification interface.
+     */
     private void modifyWordRepo() {
 
         System.out.println(Constants.WORD_REPO_MESSAGE);
@@ -239,11 +320,28 @@ public class Client {
         }
     }
 
+    /**
+     * Requests the server to send the user's current score.
+     * The command sent to the server is CMD_CHECK_SCORE.
+     * The user is not prompted for any input.
+     * The server's response is printed to the console.
+     */
     private void viewStatistics() {
         this.sendToServer(Constants.CMD_CHECK_SCORE, "\0");
         this.readFromServer();
     }
 
+    /**
+     * Communicates with the Word Repository microservice via UDP to send a command and message.
+     * Constructs a message by appending a command code and message with a terminator,
+     * then sends it to a predefined address and port. Waits for a response from the microservice.
+     * 
+     * @param cmdCode The command code to be sent to the Word Repository microservice.
+     * @param message The message associated with the command.
+     * @return The response from the Word Repository microservice as a trimmed string.
+     *         Returns "ERROR: Empty response" if the response received is empty.
+     *         Returns "ERROR" if an IOException occurs during communication.
+     */
     private String contactWordRepository(String cmdCode, String message){
             
         try(DatagramSocket socket = new DatagramSocket()){
@@ -269,8 +367,5 @@ public class Client {
             System.err.println("Error communicating with WordRepoMicroservice: " + e.getMessage());
             return "ERROR"; 
         }
-
-        
     }
-    
 }
