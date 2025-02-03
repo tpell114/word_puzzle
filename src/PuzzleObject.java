@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PuzzleObjectV3 {
+public class PuzzleObject {
 
     private int numWords;
     private int difficultyFactor;
@@ -16,15 +16,15 @@ public class PuzzleObjectV3 {
     private char[][] puzzleMaster;
     private char[][] puzzleSlave;
 
-    PuzzleObjectV3(int numWords, int difficultyFactor){
+    PuzzleObject(int numWords, int difficultyFactor){
         this.numWords = numWords;
         this.difficultyFactor = difficultyFactor;
         this.guessCounter = 0;
-        this.stem = contactWordRepository(ProtocolConstantsV2.CMD_GET_STEM_WORD, String.valueOf((numWords-1)*2));
+        this.stem = contactWordRepository(Constants.CMD_GET_STEM_WORD, String.valueOf((numWords-1)*2));
         this.guessCounter += stem.length() * difficultyFactor;
 
         for (int i = 0; i < stem.length(); i += 2) {
-            String word = contactWordRepository(ProtocolConstantsV2.CMD_GET_RANDOM_WORD, String.valueOf(stem.charAt(i)));
+            String word = contactWordRepository(Constants.CMD_GET_RANDOM_WORD, String.valueOf(stem.charAt(i)));
             horizontalWords.add(word);
             this.guessCounter += word.length() * difficultyFactor;
             if (horizontalWords.size() == numWords - 1) break;
@@ -180,7 +180,7 @@ public class PuzzleObjectV3 {
         try(DatagramSocket socket = new DatagramSocket()){
             InetAddress address = InetAddress.getByName("localhost");
         
-            String fullMessage = cmdCode + " " + message + ProtocolConstantsV2.MSG_TERMINATOR;
+            String fullMessage = cmdCode + " " + message + Constants.MSG_TERMINATOR;
             byte[] buffer = fullMessage.getBytes();
 
             DatagramPacket request = new DatagramPacket(buffer, buffer.length, address, 9090);

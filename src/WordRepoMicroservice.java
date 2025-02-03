@@ -8,18 +8,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class WordRepoMicroserviceV3 {
+public class WordRepoMicroservice {
 
     private static final int PORT = 9090;
     private static List<String> words = new ArrayList<>();
 
-    public WordRepoMicroserviceV3(String filepath){
+    public WordRepoMicroservice(String filepath){
         this.loadWords(filepath);
     }
 
 
     public static void main(String[] args) {
-        WordRepoMicroserviceV3 wordRepo = new WordRepoMicroserviceV3("words.txt");
+        WordRepoMicroservice wordRepo = new WordRepoMicroservice("words.txt");
         wordRepo.runUDPServer();
     }
 
@@ -72,27 +72,27 @@ public class WordRepoMicroserviceV3 {
 
         switch (cmdCode) {
 
-            case ProtocolConstantsV2.CMD_GET_STEM_WORD:
+            case Constants.CMD_GET_STEM_WORD:
                 System.out.println("Getting stem word with minimum length: " + contents);
                 String stemWord = getWord(Integer.valueOf(contents));
                 System.out.println("Returning stem word: " + stemWord);
                 return stemWord;
             
-            case ProtocolConstantsV2.CMD_GET_RANDOM_WORD:
+            case Constants.CMD_GET_RANDOM_WORD:
                 System.out.println("Getting random word that contains character: " + contents);
                 String randomWord = getWord(contents);
                 System.out.println("Returning random word: " + randomWord);
                 return randomWord;
 
-            case ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS:
+            case Constants.CMD_CHECK_IF_WORD_EXISTS:
                 System.out.println("Checking if word exists: " + contents);
                 return this.handleWordExists(contents);
 
-            case ProtocolConstantsV2.CMD_ADD_WORD:
+            case Constants.CMD_ADD_WORD:
                 System.out.println("Adding word: " + contents);
                 return this.handleWordAdd(contents);
 
-            case ProtocolConstantsV2.CMD_REMOVE_WORD:
+            case Constants.CMD_REMOVE_WORD:
                 System.out.println("Removing word: " + contents);
                 return this.handleWordRemove(contents);
         }
@@ -150,7 +150,7 @@ public class WordRepoMicroserviceV3 {
         }
 
         System.out.println("Word already exists: " + word);
-        
+
         return "0";
     }
 

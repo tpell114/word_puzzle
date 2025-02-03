@@ -7,7 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class ClientV4 {
+public class Client {
 
     private Integer port = 8080;
     private String host = "localhost";
@@ -16,7 +16,7 @@ public class ClientV4 {
     private BufferedReader fromServer;
     private Boolean gameOverFlag;
 
-    public ClientV4() {
+    public Client() {
         try {
             clientSocket = new Socket(host, port);
             toServer = new PrintStream(clientSocket.getOutputStream());
@@ -29,7 +29,7 @@ public class ClientV4 {
 
     public static void main(String[] args) {
 
-        ClientV4 client = new ClientV4();
+        Client client = new Client();
 
         try {
             client.userSignIn();
@@ -39,7 +39,7 @@ public class ClientV4 {
 
             while (!exitFlag) {
 
-                System.out.println(ProtocolConstantsV2.MAIN_MENU_MESSAGE);
+                System.out.println(Constants.MAIN_MENU_MESSAGE);
                 option = System.console().readLine();
 
                 switch (option) {
@@ -60,7 +60,7 @@ public class ClientV4 {
 
                     case "4":
                         System.out.println("\nGoodbye!");
-                        client.sendToServer(ProtocolConstantsV2.CMD_EXIT, "\0");
+                        client.sendToServer(Constants.CMD_EXIT, "\0");
                         exitFlag = true;
                         break;
                 }
@@ -104,23 +104,23 @@ public class ClientV4 {
     {
         switch (cmdCode)
         {
-            case ProtocolConstantsV2.CMD_SND_MISCELLANEOUS:
+            case Constants.CMD_SND_MISCELLANEOUS:
                 System.out.println(contents);
                 break;
 
-            case ProtocolConstantsV2.CMD_SND_PUZZLE:
+            case Constants.CMD_SND_PUZZLE:
                 this.printPuzzle(contents);
                 break;
 
-            case ProtocolConstantsV2.CMD_SND_GAMEWIN:
+            case Constants.CMD_SND_GAMEWIN:
                 this.handleGameWin(contents);
                 break;
 
-            case ProtocolConstantsV2.CMD_SND_GAMELOSS:
+            case Constants.CMD_SND_GAMELOSS:
                 this.handleGameLoss(contents);
                 break;
 
-            case ProtocolConstantsV2.CMD_SND_SCORE:
+            case Constants.CMD_SND_SCORE:
                 System.out.println("Your current score is: " + contents);
                 break;
         }
@@ -149,9 +149,9 @@ public class ClientV4 {
     }
 
     private void userSignIn() {
-        System.out.println(ProtocolConstantsV2.USER_SIGN_IN_MESSAGE);
+        System.out.println(Constants.USER_SIGN_IN_MESSAGE);
         String name = System.console().readLine();
-        this.sendToServer(ProtocolConstantsV2.CMD_SIGN_IN, name);
+        this.sendToServer(Constants.CMD_SIGN_IN, name);
         this.readFromServer();
     }
 
@@ -162,16 +162,16 @@ public class ClientV4 {
         String numWords = System.console().readLine();
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
         String failedAttemptFactor = System.console().readLine();
-        this.sendToServer(ProtocolConstantsV2.CMD_LEVEL_SET, numWords + ":" + failedAttemptFactor);
+        this.sendToServer(Constants.CMD_LEVEL_SET, numWords + ":" + failedAttemptFactor);
         this.readFromServer();
 
-        System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
+        System.out.println(Constants.GUESS_MESSAGE);
         String guess = System.console().readLine();
 
         while (!guess.equals("~")) {
 
             if (guess.charAt(0) == '?') {
-                String wordExists = this.contactWordRepository(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, guess.substring(1));
+                String wordExists = this.contactWordRepository(Constants.CMD_CHECK_IF_WORD_EXISTS, guess.substring(1));
                 
                 if (wordExists.equals("0")) {
                     System.out.println("\nWord '" + guess.substring(1) + "' does not exist in the word repository.");
@@ -179,25 +179,25 @@ public class ClientV4 {
                     System.out.println("\nWord '" + guess.substring(1) + "' exists in the word repository.");
                 }
 
-                System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
+                System.out.println(Constants.GUESS_MESSAGE);
                 guess = System.console().readLine();
             } else {
-                this.sendToServer(ProtocolConstantsV2.CMD_SUBMIT_GUESS, guess);
+                this.sendToServer(Constants.CMD_SUBMIT_GUESS, guess);
                 this.readFromServer();
                 if (gameOverFlag) break;
-                System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
+                System.out.println(Constants.GUESS_MESSAGE);
                 guess = System.console().readLine();
             }
         }
 
         if (guess.equals("~")) {
-            this.sendToServer(ProtocolConstantsV2.CMD_ABORT_GAME, "\0");
+            this.sendToServer(Constants.CMD_ABORT_GAME, "\0");
         }
     }
 
     private void modifyWordRepo() {
 
-        System.out.println(ProtocolConstantsV2.WORD_REPO_MESSAGE);
+        System.out.println(Constants.WORD_REPO_MESSAGE);
 
         String input = System.console().readLine();
 
@@ -205,7 +205,7 @@ public class ClientV4 {
 
             if (input.charAt(0) == '+') {
 
-                String success = this.contactWordRepository(ProtocolConstantsV2.CMD_ADD_WORD, input.substring(1));
+                String success = this.contactWordRepository(Constants.CMD_ADD_WORD, input.substring(1));
                 
                 if (success.equals("0")) {
                     System.out.println("\nFailed to add word '" + input.substring(1) + "' to the word repository, it may already exist.");
@@ -215,7 +215,7 @@ public class ClientV4 {
 
             } else if (input.charAt(0) == '-') {
 
-                String success = this.contactWordRepository(ProtocolConstantsV2.CMD_REMOVE_WORD, input.substring(1));
+                String success = this.contactWordRepository(Constants.CMD_REMOVE_WORD, input.substring(1));
                 
                 if (success.equals("0")) {
                     System.out.println("\nFailed to remove word '" + input.substring(1) + "' from the word repository, it may not exist.");
@@ -225,7 +225,7 @@ public class ClientV4 {
                 
             } else if (input.charAt(0) == '?') {
 
-                String wordExists = this.contactWordRepository(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, input.substring(1));
+                String wordExists = this.contactWordRepository(Constants.CMD_CHECK_IF_WORD_EXISTS, input.substring(1));
                 
                 if (wordExists.equals("0")) {
                     System.out.println("\nWord '" + input.substring(1) + "' does not exist in the word repository.");
@@ -234,13 +234,13 @@ public class ClientV4 {
                 }
             }
 
-            System.out.println(ProtocolConstantsV2.WORD_REPO_MESSAGE);
+            System.out.println(Constants.WORD_REPO_MESSAGE);
             input = System.console().readLine();
         }
     }
 
     private void viewStatistics() {
-        this.sendToServer(ProtocolConstantsV2.CMD_CHECK_SCORE, "\0");
+        this.sendToServer(Constants.CMD_CHECK_SCORE, "\0");
         this.readFromServer();
     }
 
@@ -249,7 +249,7 @@ public class ClientV4 {
         try(DatagramSocket socket = new DatagramSocket()){
             InetAddress address = InetAddress.getByName("localhost");
         
-            String fullMessage = cmdCode + " " + message + ProtocolConstantsV2.MSG_TERMINATOR;
+            String fullMessage = cmdCode + " " + message + Constants.MSG_TERMINATOR;
             byte[] buffer = fullMessage.getBytes();
 
             DatagramPacket request = new DatagramPacket(buffer, buffer.length, address, 9090);

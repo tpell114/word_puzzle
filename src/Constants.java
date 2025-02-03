@@ -1,4 +1,4 @@
-public class ProtocolConstantsV2 {
+public class Constants {
 
    //client to server
    public static final String CMD_EXIT = "01";
@@ -46,7 +46,7 @@ public class ProtocolConstantsV2 {
                                                     + "check if a word exists by prefixing a word with '?' eg. ?apple\n"
                                                     + "enter '~' to return to menu";
                                                     
-    private ProtocolConstantsV2() {
+    private Constants() {
         // This class should not be instantiated
     }
 }

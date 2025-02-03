@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server_V2 {
+public class Server {
 
     public static void main(String[] args) {
 
@@ -44,7 +44,7 @@ public class Server_V2 {
         private PrintStream toClient;
         private Map<String, Integer> usersMap;
         private String user;
-        private PuzzleObjectV3 puzzle;
+        private PuzzleObject puzzle;
 
         ClientHandler(Socket socket, Map<String, Integer> users) {
 
@@ -77,27 +77,27 @@ public class Server_V2 {
 
                     switch (parts[0]) {
                         
-                        case ProtocolConstantsV2.CMD_EXIT:
+                        case Constants.CMD_EXIT:
                             handleClientExit();
                             break;
 
-                        case ProtocolConstantsV2.CMD_SIGN_IN:
+                        case Constants.CMD_SIGN_IN:
                             handleClientSignIn(parts[1]);
                             break;
 
-                        case ProtocolConstantsV2.CMD_LEVEL_SET:
+                        case Constants.CMD_LEVEL_SET:
                             handleLevelSet(parts[1]);
                             break;
                     
-                        case ProtocolConstantsV2.CMD_SUBMIT_GUESS:
+                        case Constants.CMD_SUBMIT_GUESS:
                             handleSubmitGuess(parts[1]);
                             break;
                         
-                        case ProtocolConstantsV2.CMD_ABORT_GAME:
+                        case Constants.CMD_ABORT_GAME:
                             handleEndGame(false);
                             break;
 
-                        case ProtocolConstantsV2.CMD_CHECK_SCORE:
+                        case Constants.CMD_CHECK_SCORE:
                             handleViewStatistics();
                             break;
 
@@ -134,11 +134,11 @@ public class Server_V2 {
 
             try{            
                 if (usersMap.containsKey(user)) {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_MISCELLANEOUS, "Welcome back " + user + " to the Word Puzzle Game Server!");
+                    sendMessage(Constants.CMD_SND_MISCELLANEOUS, "Welcome back " + user + " to the Word Puzzle Game Server!");
                     System.out.println("user '" + user + "' already in database " + clientSocket);
                 } else {
                     usersMap.put(user, 0);
-                    sendMessage(ProtocolConstantsV2.CMD_SND_MISCELLANEOUS, "Welcome " + user + " to the Word Puzzle Game Server!");
+                    sendMessage(Constants.CMD_SND_MISCELLANEOUS, "Welcome " + user + " to the Word Puzzle Game Server!");
                     System.out.println("added '" + user + "' to database " + clientSocket);
                 }
                 this.user = user;
@@ -155,9 +155,9 @@ public class Server_V2 {
             int difficultyFactor = Integer.parseInt(args.split(":")[1]);
 
             System.out.println("Setting up puzzle with " + numOfWords + " number of words and a difficulty factor of " + difficultyFactor); 
-            puzzle = new PuzzleObjectV3(numOfWords, difficultyFactor);
+            puzzle = new PuzzleObject(numOfWords, difficultyFactor);
 
-            sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+            sendMessage(Constants.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
         }
 
         private void handleSubmitGuess(String guess){
@@ -172,12 +172,12 @@ public class Server_V2 {
                 if (!solvedFlag) {
                     if (puzzle.getGuessCounter() == 0) {
                         this.handleEndGame(false);
-                        sendMessage(ProtocolConstantsV2.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
+                        sendMessage(Constants.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
                     } else {
-                        sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                        sendMessage(Constants.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
                     }
                 } else {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
+                    sendMessage(Constants.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
                     this.handleEndGame(true);
                 }
             } else {
@@ -187,13 +187,13 @@ public class Server_V2 {
                 if (!solvedFlag) {
                     if (puzzle.getGuessCounter() == 0) {
                         this.handleEndGame(false);
-                        sendMessage(ProtocolConstantsV2.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
+                        sendMessage(Constants.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
                         
                     } else {
-                        sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                        sendMessage(Constants.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
                     }
                 } else {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
+                    sendMessage(Constants.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
                     this.handleEndGame(true);
                 }
             }
@@ -213,7 +213,7 @@ public class Server_V2 {
         }
 
         private void handleViewStatistics(){
-            sendMessage(ProtocolConstantsV2.CMD_SND_SCORE, usersMap.get(user).toString());
+            sendMessage(Constants.CMD_SND_SCORE, usersMap.get(user).toString());
         }
 
     }
