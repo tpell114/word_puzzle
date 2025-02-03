@@ -72,7 +72,6 @@ public class Server_V2 {
                 message = fromClient.readLine();
             
                 while(message != null) {
-                    //System.out.println("=====Received: " + message); //FOR TESTING
 
                     parts = message.split(" ");
 
@@ -96,33 +95,27 @@ public class Server_V2 {
                         
                         case ProtocolConstantsV2.CMD_ABORT_GAME:
                             handleEndGame(false);
+                            break;
 
                         case ProtocolConstantsV2.CMD_CHECK_SCORE:
                             handleViewStatistics();
-
-                        default:
                             break;
-                    }
 
+                    }
                     message = fromClient.readLine();
                 }
-
             } catch (Exception e) {
                 System.out.println(e);
             } finally {
                 handleClientExit();
             }
-
         }
 
         private void sendMessage(String cmdCode, String message){
-            try
-            {
+            try {
                 this.toClient.println(cmdCode + " " + message);
-                //System.out.println("=====Sending: " + cmdCode + " " + message);
             }
-            catch(Exception e)
-            {
+            catch(Exception e){
                 System.out.println("Error sending message: " + e.getMessage());
                 e.printStackTrace();
             }
@@ -154,7 +147,6 @@ public class Server_V2 {
                 System.out.println("Error with client sign in: "+ e.getMessage());
                 e.printStackTrace();
             }
-
         }
 
         private void handleLevelSet(String args){

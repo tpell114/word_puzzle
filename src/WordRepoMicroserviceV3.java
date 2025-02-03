@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -15,26 +14,23 @@ public class WordRepoMicroserviceV3 {
     private static List<String> words = new ArrayList<>();
 
     public WordRepoMicroserviceV3(String filepath){
-
         this.loadWords(filepath);
     }
 
 
     public static void main(String[] args) {
-        
         WordRepoMicroserviceV3 wordRepo = new WordRepoMicroserviceV3("words.txt");
         wordRepo.runUDPServer();
-
     }
 
     private void runUDPServer()
     {
-        try(DatagramSocket socket = new DatagramSocket(PORT))
-        {
+        try(DatagramSocket socket = new DatagramSocket(PORT)){
+
             System.out.println("WordRepoMicroservice is running on port " + PORT);
             byte[] buffer = new byte[1024];
-            while(true)
-            {
+
+            while(true){
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 socket.receive(request);
                 String message = new String(request.getData(), 0, request.getLength());
@@ -45,8 +41,7 @@ public class WordRepoMicroserviceV3 {
                 socket.send(reply);
             }
         }
-        catch(IOException e)
-        {
+        catch(IOException e){
             System.err.println("Error running UDP server: " + e.getMessage());
         }
     }
@@ -56,11 +51,15 @@ public class WordRepoMicroserviceV3 {
         System.out.println("Loading words from file: " + filepath);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
+
             String line;
+
             while ((line = reader.readLine()) != null) {
                 words.add(line.trim());
             }
+
             System.out.println("Loaded " + words.size() + " words.");
+
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
@@ -96,8 +95,6 @@ public class WordRepoMicroserviceV3 {
             case ProtocolConstantsV2.CMD_REMOVE_WORD:
                 System.out.println("Removing word: " + contents);
                 return this.handleWordRemove(contents);
-                
-
         }
         return null;
     }
@@ -107,10 +104,12 @@ public class WordRepoMicroserviceV3 {
         Random random = new Random();
         int index = random.nextInt(words.size());
         String word = words.get(index);
+
         while(word.length() < minLength){
             index = random.nextInt(words.size());
             word = words.get(index);
         }
+
         return word;
     }
 
@@ -119,19 +118,24 @@ public class WordRepoMicroserviceV3 {
         Random random = new Random();
         int index = random.nextInt(words.size());
         String word = words.get(index);
+
         while(!word.contains(String.valueOf(contains.toLowerCase()))){
             index = random.nextInt(words.size());
             word = words.get(index);
         }
+
         return word;
     }
 
     private String handleWordExists(String word){
+
         if (words.contains(word.toLowerCase())) {
             System.out.println("Word exists: " + word);
             return "1";
         }
+
         System.out.println("Word does not exist: " + word);
+
         return "0";
     }
 
@@ -146,6 +150,7 @@ public class WordRepoMicroserviceV3 {
         }
 
         System.out.println("Word already exists: " + word);
+        
         return "0";
     }
 
@@ -162,7 +167,7 @@ public class WordRepoMicroserviceV3 {
         System.out.println("Word does not exist: " + word);
         return "0";
     }
-    
+
 }
 
 

@@ -39,11 +39,7 @@ public class ClientV4 {
 
             while (!exitFlag) {
 
-                System.out.println("\nSelect from the following options:\n"
-                                    +"1. Play a new game\n"
-                                    +"2. View statistics\n"
-                                    +"3. Modify word repository\n"
-                                    +"4. Exit\n");
+                System.out.println(ProtocolConstantsV2.MAIN_MENU_MESSAGE);
                 option = System.console().readLine();
 
                 switch (option) {
@@ -67,16 +63,13 @@ public class ClientV4 {
                         client.sendToServer(ProtocolConstantsV2.CMD_EXIT, "\0");
                         exitFlag = true;
                         break;
-
                 }
             }
-            
         } catch (Exception e) {
             System.out.println(e);
         } finally {
             client.closeClient();
         }
-
     }
 
     public void closeClient() {
@@ -134,6 +127,7 @@ public class ClientV4 {
     }
 
     private void printPuzzle(String contents) {
+        
         String[] lines = contents.split("\\+");
 
         System.out.println();
@@ -155,10 +149,7 @@ public class ClientV4 {
     }
 
     private void userSignIn() {
-
-        System.out.println("\nWelcome to Word Puzzle!\n"
-                            +"=======================\n"
-                            +"Please enter your name:\n");
+        System.out.println(ProtocolConstantsV2.USER_SIGN_IN_MESSAGE);
         String name = System.console().readLine();
         this.sendToServer(ProtocolConstantsV2.CMD_SIGN_IN, name);
         this.readFromServer();
@@ -174,8 +165,7 @@ public class ClientV4 {
         this.sendToServer(ProtocolConstantsV2.CMD_LEVEL_SET, numWords + ":" + failedAttemptFactor);
         this.readFromServer();
 
-        System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
-                            + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
+        System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
         String guess = System.console().readLine();
 
         while (!guess.equals("~")) {
@@ -189,15 +179,13 @@ public class ClientV4 {
                     System.out.println("\nWord '" + guess.substring(1) + "' exists in the word repository.");
                 }
 
-                System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
-                                    + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
+                System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
                 guess = System.console().readLine();
             } else {
                 this.sendToServer(ProtocolConstantsV2.CMD_SUBMIT_GUESS, guess);
                 this.readFromServer();
                 if (gameOverFlag) break;
-                System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
-                                    + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
+                System.out.println(ProtocolConstantsV2.GUESS_MESSAGE);
                 guess = System.console().readLine();
             }
         }
@@ -209,10 +197,7 @@ public class ClientV4 {
 
     private void modifyWordRepo() {
 
-        System.out.println("\nAdd words to the repo by prefixing a word with '+'  eg. +apple\n"
-                            + "remove words from the repo by prefixing a word with '-' eg. -apple\n"
-                            + "check if a word exists by prefixing a word with '?' eg. ?apple\n"
-                            + "enter '~' to return to menu");
+        System.out.println(ProtocolConstantsV2.WORD_REPO_MESSAGE);
 
         String input = System.console().readLine();
 
@@ -249,11 +234,7 @@ public class ClientV4 {
                 }
             }
 
-            System.out.println("\nAdd words to the repo by prefixing a word with '+'  eg. +apple\n"
-                            + "remove words from the repo by prefixing a word with '-' eg. -apple\n"
-                            + "check if a word exists by prefixing a word with '?' eg. ?apple\n"
-                            + "enter '~' to return to menu");
-
+            System.out.println(ProtocolConstantsV2.WORD_REPO_MESSAGE);
             input = System.console().readLine();
         }
     }
