@@ -29,6 +29,11 @@ public class Server_V2 {
 			}
         } catch (IOException e) {
             System.out.println(e);
+            try {
+                serverSocket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         } 
     }
 
@@ -126,7 +131,7 @@ public class Server_V2 {
         private void handleClientExit(){
             try { 
                 clientSocket.close();
-                System.out.println("Client connection closed" + clientSocket);
+                System.out.println("Client connection closed: " + clientSocket);
             } catch (IOException e) {
                 System.out.println("Error closing client socket: " + e.getMessage());
             }

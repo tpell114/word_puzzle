@@ -2,6 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class ClientV4 {
@@ -86,7 +89,6 @@ public class ClientV4 {
 
     private void sendToServer(String cmdCode, String message) {
 		toServer.println(cmdCode + " " + message);	
-        //System.out.println("=====Sending: " + cmdCode + " " + message);
 	}
 
     private void readFromServer() {
@@ -96,12 +98,12 @@ public class ClientV4 {
 
         try {
             rawResponse = fromServer.readLine();
-            //System.out.println("=====Received: " + rawResponse);
             response = rawResponse.split(" ", 2);
             this.handleResponse(response[0], response[1]);
 
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -165,7 +167,7 @@ public class ClientV4 {
     private void playPuzzle() {
 
         gameOverFlag = false;
-        System.out.println("\nHow many words would you like in the puzzle? (Enter a number between 1 and 5)");
+        System.out.println("\nHow many words would you like in the puzzle? (Enter a number between 2 and 5)");
         String numWords = System.console().readLine();
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
         String failedAttemptFactor = System.console().readLine();
@@ -179,8 +181,14 @@ public class ClientV4 {
         while (!guess.equals("~")) {
 
             if (guess.charAt(0) == '?') {
-                sendToServer(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, guess.substring(1));
-                this.readFromServer();
+                String wordExists = this.contactWordRepository(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, guess.substring(1));
+                
+                if (wordExists.equals("0")) {
+                    System.out.println("\nWord '" + guess.substring(1) + "' does not exist in the word repository.");
+                } else if (wordExists.equals("1")) {
+                    System.out.println("\nWord '" + guess.substring(1) + "' exists in the word repository.");
+                }
+
                 System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
                                     + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
                 guess = System.console().readLine();
@@ -202,22 +210,86 @@ public class ClientV4 {
     private void modifyWordRepo() {
 
         System.out.println("\nAdd words to the repo by prefixing a word with '+'  eg. +apple\n"
-                            + "remove words from the repo by prefixing a word with '-' eg. -tomato\n");
+                            + "remove words from the repo by prefixing a word with '-' eg. -apple\n"
+                            + "check if a word exists by prefixing a word with '?' eg. ?apple\n"
+                            + "enter '~' to return to menu");
 
         String input = System.console().readLine();
 
-        if (input.charAt(0) == '+') {
-            this.sendToServer(ProtocolConstantsV2.CMD_ADD_WORD, input.substring(1));
-            this.readFromServer();
-        } else if (input.charAt(0) == '-') {
-            this.sendToServer(ProtocolConstantsV2.CMD_REMOVE_WORD, input.substring(1));
-            this.readFromServer();
+        while (!input.equals("~")) {
+
+            if (input.charAt(0) == '+') {
+
+                String success = this.contactWordRepository(ProtocolConstantsV2.CMD_ADD_WORD, input.substring(1));
+                
+                if (success.equals("0")) {
+                    System.out.println("\nFailed to add word '" + input.substring(1) + "' to the word repository, it may already exist.");
+                } else if (success.equals("1")) {
+                    System.out.println("\nSuccessfully added word '" + input.substring(1) + "' to the word repository.");
+                }
+
+            } else if (input.charAt(0) == '-') {
+
+                String success = this.contactWordRepository(ProtocolConstantsV2.CMD_REMOVE_WORD, input.substring(1));
+                
+                if (success.equals("0")) {
+                    System.out.println("\nFailed to remove word '" + input.substring(1) + "' from the word repository, it may not exist.");
+                } else if (success.equals("1")) {
+                    System.out.println("\nSuccessfully removed word '" + input.substring(1) + "' from the word repository.");
+                }
+                
+            } else if (input.charAt(0) == '?') {
+
+                String wordExists = this.contactWordRepository(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, input.substring(1));
+                
+                if (wordExists.equals("0")) {
+                    System.out.println("\nWord '" + input.substring(1) + "' does not exist in the word repository.");
+                } else if (wordExists.equals("1")) {
+                    System.out.println("\nWord '" + input.substring(1) + "' exists in the word repository.");
+                }
+            }
+
+            System.out.println("\nAdd words to the repo by prefixing a word with '+'  eg. +apple\n"
+                            + "remove words from the repo by prefixing a word with '-' eg. -apple\n"
+                            + "check if a word exists by prefixing a word with '?' eg. ?apple\n"
+                            + "enter '~' to return to menu");
+
+            input = System.console().readLine();
         }
     }
 
     private void viewStatistics() {
         this.sendToServer(ProtocolConstantsV2.CMD_CHECK_SCORE, "\0");
         this.readFromServer();
+    }
+
+    private String contactWordRepository(String cmdCode, String message){
+            
+        try(DatagramSocket socket = new DatagramSocket()){
+            InetAddress address = InetAddress.getByName("localhost");
+        
+            String fullMessage = cmdCode + " " + message + ProtocolConstantsV2.MSG_TERMINATOR;
+            byte[] buffer = fullMessage.getBytes();
+
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length, address, 9090);
+            socket.send(request);
+
+            byte[] responseBuffer = new byte[1024];
+            DatagramPacket response = new DatagramPacket(responseBuffer, responseBuffer.length);
+            socket.setSoTimeout(3000); 
+            socket.receive(response);
+
+            String result = new String(response.getData(), 0, response.getLength()).trim();
+            if(result.isEmpty()) return "ERROR: Empty response";
+
+            return result;
+        }
+        catch (IOException e) {
+            System.err.println("Error communicating with WordRepoMicroservice: " + e.getMessage());
+            return "ERROR"; 
+        }
+
+        
     }
     
 }

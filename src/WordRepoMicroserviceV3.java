@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -83,6 +85,19 @@ public class WordRepoMicroserviceV3 {
                 System.out.println("Returning random word: " + randomWord);
                 return randomWord;
 
+            case ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS:
+                System.out.println("Checking if word exists: " + contents);
+                return this.handleWordExists(contents);
+
+            case ProtocolConstantsV2.CMD_ADD_WORD:
+                System.out.println("Adding word: " + contents);
+                return this.handleWordAdd(contents);
+
+            case ProtocolConstantsV2.CMD_REMOVE_WORD:
+                System.out.println("Removing word: " + contents);
+                return this.handleWordRemove(contents);
+                
+
         }
         return null;
     }
@@ -111,8 +126,43 @@ public class WordRepoMicroserviceV3 {
         return word;
     }
 
+    private String handleWordExists(String word){
+        if (words.contains(word.toLowerCase())) {
+            System.out.println("Word exists: " + word);
+            return "1";
+        }
+        System.out.println("Word does not exist: " + word);
+        return "0";
+    }
 
+    private String handleWordAdd(String word){
 
+       int index = Collections.binarySearch(words, word.toLowerCase());
+
+       if (index < 0) {
+            words.add(-index - 1, word.toLowerCase());
+            System.out.println("Word added: " + word);
+            return "1";
+        }
+
+        System.out.println("Word already exists: " + word);
+        return "0";
+    }
+
+    private String handleWordRemove(String word){
+
+        int index = Collections.binarySearch(words, word.toLowerCase());
+
+        if (index >= 0) {
+            words.remove(index);
+            System.out.println("Word removed: " + word);
+            return "1";
+        }
+
+        System.out.println("Word does not exist: " + word);
+        return "0";
+    }
+    
 }
 
 
