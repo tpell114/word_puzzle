@@ -11,6 +11,7 @@ public class ClientV4 {
     private Socket clientSocket;
     private PrintStream toServer;
     private BufferedReader fromServer;
+    private Boolean gameOverFlag;
 
     public ClientV4() {
         try {
@@ -50,6 +51,7 @@ public class ClientV4 {
                 
                     case "2":
                         System.out.println("\nViewing statistics...");
+                        client.viewStatistics();
                         break;
 
                     case "3":
@@ -84,7 +86,7 @@ public class ClientV4 {
 
     private void sendToServer(String cmdCode, String message) {
 		toServer.println(cmdCode + " " + message);	
-        System.out.println("=====Sending: " + cmdCode + " " + message);
+        //System.out.println("=====Sending: " + cmdCode + " " + message);
 	}
 
     private void readFromServer() {
@@ -114,15 +116,40 @@ public class ClientV4 {
             case ProtocolConstantsV2.CMD_SND_PUZZLE:
                 this.printPuzzle(contents);
                 break;
+
+            case ProtocolConstantsV2.CMD_SND_GAMEWIN:
+                this.handleGameWin(contents);
+                break;
+
+            case ProtocolConstantsV2.CMD_SND_GAMELOSS:
+                this.handleGameLoss(contents);
+                break;
+
+            case ProtocolConstantsV2.CMD_SND_SCORE:
+                System.out.println("Your current score is: " + contents);
+                break;
         }
     }
 
     private void printPuzzle(String contents) {
         String[] lines = contents.split("\\+");
 
+        System.out.println();
         for (String line : lines) {
             System.out.println(line);
         }
+    }
+
+    private void handleGameWin(String contents) {
+        this.printPuzzle(contents);
+        System.out.println("\nYou have won the game! 1 point added to your score.");
+        gameOverFlag = true;
+    }
+
+    private void handleGameLoss(String contents) {
+        this.printPuzzle(contents);
+        System.out.println("\nYou have lost the game. 1 point deducted from your score.");
+        gameOverFlag = true;
     }
 
     private void userSignIn() {
@@ -137,6 +164,7 @@ public class ClientV4 {
 
     private void playPuzzle() {
 
+        gameOverFlag = false;
         System.out.println("\nHow many words would you like in the puzzle? (Enter a number between 1 and 5)");
         String numWords = System.console().readLine();
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
@@ -153,13 +181,21 @@ public class ClientV4 {
             if (guess.charAt(0) == '?') {
                 sendToServer(ProtocolConstantsV2.CMD_CHECK_IF_WORD_EXISTS, guess.substring(1));
                 this.readFromServer();
+                System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
+                                    + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
+                guess = System.console().readLine();
             } else {
                 this.sendToServer(ProtocolConstantsV2.CMD_SUBMIT_GUESS, guess);
                 this.readFromServer();
+                if (gameOverFlag) break;
                 System.out.println("\nPlease guess a letter or a word (enter ~ to return to menu):"
                                     + "you can also verify if a word exists by prefixing a word with '?' eg. ?apple\n");
                 guess = System.console().readLine();
             }
+        }
+
+        if (guess.equals("~")) {
+            this.sendToServer(ProtocolConstantsV2.CMD_ABORT_GAME, "\0");
         }
     }
 
@@ -178,4 +214,10 @@ public class ClientV4 {
             this.readFromServer();
         }
     }
+
+    private void viewStatistics() {
+        this.sendToServer(ProtocolConstantsV2.CMD_CHECK_SCORE, "\0");
+        this.readFromServer();
+    }
+    
 }

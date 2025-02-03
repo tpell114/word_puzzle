@@ -12,7 +12,7 @@ public class ProtocolConstantsV2 {
    //client to server && server to wordrepo
    public static final String CMD_CHECK_IF_WORD_EXISTS = "08";
    public static final String CMD_ADD_WORD = "09";
-   public static final String CMD_REMOVE_WORD = "0A";
+   public static final String CMD_REMOVE_WORD = "10";
 
     //server to client
     public static final String CMD_SND_WELCOME = "11";
@@ -20,13 +20,14 @@ public class ProtocolConstantsV2 {
     public static final String CMD_SND_PUZZLE = "13";
     public static final String CMD_SND_COUNTER = "14";
     public static final String CMD_SND_SCORE = "15";
-    public static final String CMD_SND_ENDGAME = "16";
-    public static final String CMD_SND_FAIL_ATTEMPT = "17";
-    public static final String CMD_SND_MISCELLANEOUS= "18"; 
+    public static final String CMD_SND_GAMEWIN = "16";
+    public static final String CMD_SND_GAMELOSS = "17";
+    public static final String CMD_SND_FAIL_ATTEMPT = "18";
+    public static final String CMD_SND_MISCELLANEOUS= "19"; 
 
     //server to word repo
-    public static final String CMD_GET_RANDOM_WORD = "19";
-    public static final String CMD_GET_STEM_WORD = "1A";
+    public static final String CMD_GET_RANDOM_WORD = "20";
+    public static final String CMD_GET_STEM_WORD = "21";
   
 
 

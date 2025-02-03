@@ -10,6 +10,7 @@ public class PuzzleObjectV3 {
 
     private int numWords;
     private int difficultyFactor;
+    private int guessCounter;
     private String stem;
     private List<String> horizontalWords = new ArrayList<>();
     private char[][] puzzleMaster;
@@ -18,11 +19,14 @@ public class PuzzleObjectV3 {
     PuzzleObjectV3(int numWords, int difficultyFactor){
         this.numWords = numWords;
         this.difficultyFactor = difficultyFactor;
+        this.guessCounter = 0;
         this.stem = contactWordRepository(ProtocolConstantsV2.CMD_GET_STEM_WORD, String.valueOf((numWords-1)*2));
+        this.guessCounter += stem.length() * difficultyFactor;
 
         for (int i = 0; i < stem.length(); i += 2) {
             String word = contactWordRepository(ProtocolConstantsV2.CMD_GET_RANDOM_WORD, String.valueOf(stem.charAt(i)));
             horizontalWords.add(word);
+            this.guessCounter += word.length() * difficultyFactor;
             if (horizontalWords.size() == numWords - 1) break;
         }
 
@@ -105,12 +109,14 @@ public class PuzzleObjectV3 {
         for (char[] row : puzzleSlave) {
             returnString += new String(row) + "+";
         }
+        returnString += "Counter: " + this.guessCounter + "+";
         return returnString;
     }
 
     public Boolean guessChar(char guess){
 
         System.out.println("Guessing " + guess);
+        this.guessCounter--;
 
         for (int i = 0; i < puzzleMaster.length; i++) {
             for (int j = 0; j < puzzleMaster[i].length; j++) {
@@ -130,6 +136,7 @@ public class PuzzleObjectV3 {
     public Boolean guessWord(String guess){
 
         System.out.println("Guessing " + guess);
+        this.guessCounter--;
 
         if (guess.equals(this.stem)) {
             for (int i = 0; i < puzzleMaster.length; i++) {
@@ -161,6 +168,10 @@ public class PuzzleObjectV3 {
             return true;
         }
         return false;
+    }
+
+    public int getGuessCounter(){
+        return this.guessCounter;
     }
 
 

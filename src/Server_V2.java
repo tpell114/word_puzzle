@@ -29,8 +29,7 @@ public class Server_V2 {
 			}
         } catch (IOException e) {
             System.out.println(e);
-            System.exit(1);
-        }
+        } 
     }
 
     public static class ClientHandler implements Runnable{
@@ -38,13 +37,14 @@ public class Server_V2 {
         private Socket clientSocket;
         private BufferedReader fromClient;
         private PrintStream toClient;
-        private Map<String, Integer> users;
+        private Map<String, Integer> usersMap;
+        private String user;
         private PuzzleObjectV3 puzzle;
 
         ClientHandler(Socket socket, Map<String, Integer> users) {
 
 			this.clientSocket = socket;
-            this.users = users;
+            this.usersMap = users;
 
             try {
                 fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -67,7 +67,7 @@ public class Server_V2 {
                 message = fromClient.readLine();
             
                 while(message != null) {
-                    System.out.println("=====Received: " + message); //FOR TESTING
+                    //System.out.println("=====Received: " + message); //FOR TESTING
 
                     parts = message.split(" ");
 
@@ -88,6 +88,13 @@ public class Server_V2 {
                         case ProtocolConstantsV2.CMD_SUBMIT_GUESS:
                             handleSubmitGuess(parts[1]);
                             break;
+                        
+                        case ProtocolConstantsV2.CMD_ABORT_GAME:
+                            handleEndGame(false);
+
+                        case ProtocolConstantsV2.CMD_CHECK_SCORE:
+                            handleViewStatistics();
+
                         default:
                             break;
                     }
@@ -97,7 +104,6 @@ public class Server_V2 {
 
             } catch (Exception e) {
                 System.out.println(e);
-                System.exit(1);
             } finally {
                 handleClientExit();
             }
@@ -108,7 +114,7 @@ public class Server_V2 {
             try
             {
                 this.toClient.println(cmdCode + " " + message);
-                System.out.println("=====Sending: " + cmdCode + " " + message);
+                //System.out.println("=====Sending: " + cmdCode + " " + message);
             }
             catch(Exception e)
             {
@@ -120,7 +126,7 @@ public class Server_V2 {
         private void handleClientExit(){
             try { 
                 clientSocket.close();
-                System.out.println("Client connection closed");
+                System.out.println("Client connection closed" + clientSocket);
             } catch (IOException e) {
                 System.out.println("Error closing client socket: " + e.getMessage());
             }
@@ -129,14 +135,15 @@ public class Server_V2 {
         private void handleClientSignIn(String user){
 
             try{            
-                if (users.containsKey(user)) {
+                if (usersMap.containsKey(user)) {
                     sendMessage(ProtocolConstantsV2.CMD_SND_MISCELLANEOUS, "Welcome back " + user + " to the Word Puzzle Game Server!");
                     System.out.println("user '" + user + "' already in database " + clientSocket);
                 } else {
-                    users.put(user, 0);
+                    usersMap.put(user, 0);
                     sendMessage(ProtocolConstantsV2.CMD_SND_MISCELLANEOUS, "Welcome " + user + " to the Word Puzzle Game Server!");
                     System.out.println("added '" + user + "' to database " + clientSocket);
                 }
+                this.user = user;
             }
             catch(Exception e){
                 System.out.println("Error with client sign in: "+ e.getMessage());
@@ -166,25 +173,54 @@ public class Server_V2 {
                 solvedFlag = puzzle.guessChar(trimmedGuess.charAt(0));
 
                 if (!solvedFlag) {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                    if (puzzle.getGuessCounter() == 0) {
+                        this.handleEndGame(false);
+                        sendMessage(ProtocolConstantsV2.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
+                    } else {
+                        sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                    }
                 } else {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_ENDGAME, puzzle.getPuzzleSlaveString());
+                    sendMessage(ProtocolConstantsV2.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
+                    this.handleEndGame(true);
                 }
             } else {
 
                 solvedFlag = puzzle.guessWord(trimmedGuess);
 
                 if (!solvedFlag) {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                    if (puzzle.getGuessCounter() == 0) {
+                        this.handleEndGame(false);
+                        sendMessage(ProtocolConstantsV2.CMD_SND_GAMELOSS, puzzle.getPuzzleSlaveString());
+                        
+                    } else {
+                        sendMessage(ProtocolConstantsV2.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
+                    }
                 } else {
-                    sendMessage(ProtocolConstantsV2.CMD_SND_ENDGAME, puzzle.getPuzzleSlaveString());
+                    sendMessage(ProtocolConstantsV2.CMD_SND_GAMEWIN, puzzle.getPuzzleSlaveString());
+                    this.handleEndGame(true);
                 }
             }
 
         }
 
+        private void handleEndGame(Boolean win){
 
+            if (win) {
+                usersMap.put(user, usersMap.get(user) + 1);
+                System.out.println("User " + user + " won the game! 1 point added to their score.");
+            } else {
+                usersMap.put(user, usersMap.get(user) - 1);
+                System.out.println("User " + user + " lost the game. 1 point removed from their score.");
+            }
+
+        }
+
+        private void handleViewStatistics(){
+            sendMessage(ProtocolConstantsV2.CMD_SND_SCORE, usersMap.get(user).toString());
+        }
 
     }
+
+    
 
 }
