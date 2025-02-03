@@ -42,3 +42,4 @@ In this document, we outline the the list of request and reply messages and acti
 
 ## Sequence Diagram
 
+![Sequence Diagram](https://github.com/tpell114/word_puzzle/blob/main/src/sequence_diagram.png)
