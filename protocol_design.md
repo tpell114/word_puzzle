@@ -37,7 +37,7 @@ In this document, we outline the the list of request and reply messages and acti
 
 ## Component Diagram
 
-![Component Diagram](component_diagram.png "Distributed Word Puzzle System")
+![Component Diagram](https://github.com/tpell114/word_puzzle/blob/main/src/component_diagram.png)
 
 
 ## Sequence Diagram
