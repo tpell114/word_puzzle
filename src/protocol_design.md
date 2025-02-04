@@ -15,14 +15,15 @@ In this document, we outline the the list of request and reply messages and acti
 |CMD_CHECK_IF_WORD_EXISTS "07"|Client -> WordRepo|Asks if a certain word exists in the repo|repo response(yes/no)|
 |CMD_ADD_WORD "08"            |Client -> WordRepo|Asks repo to add a word|Word repo finds index of location to insert if it does not already exist.|
 |CMD_REMOVE_WORD "09"         |Client -> WordRepo|Asks repo to remove a word|Word repo searches for word and removes it|
-|CMD_SND_PUZZLE = "10"        |Server -> client  |The server lets the client know the contents of the message are the puzzle |The client views the puzzle in the proper format|
-|CMD_SND_SCORE = "11"         |Server -> client  |The server indicates it is sending the clients score|The client views score|
-|CMD_SND_GAMEWIN = "12"       |Server -> client  |The server lets the client know the game has been won|The client score is increased by 1|
-|CMD_SND_GAMELOSS = "13"      |Server -> client  |The server lets the client know the game has been lost|The client score is decreased by 1|
-|CMD_SND_MISCELLANEOUS= "14"  |Server -> client  |The server send the client any message that is not required for functionality|Client just reads message as it is|
-|CMD_GET_RANDOM_WORD = "15"   |Server -> Wordrepo|The server asks the wordrepo to give it a random word|Random word response from repo|
-|CMD_GET_STEM_WORD = "16"     |Server -> Wordrepo|The server asks the repo for a stem word with minimum length according to number of words specified by user|Stem word response from repo|
-|MSG_TERMINATOR = "\n"        |  All             |Appended to each message sent to indicate end of message|The reader knows its done reading|
+|CMD_SND_PUZZLE "10"        |Server -> client  |The server lets the client know the contents of the message are the puzzle |The client views the puzzle in the proper format|
+|CMD_SND_SCORE "11"         |Server -> client  |The server indicates it is sending the clients score|The client views score|
+|CMD_SND_ERROR "99"         |Server -> client  |The server lets client know there was an error|Client reads and error occured instead of ambiguous behaviour|
+|CMD_SND_GAMEWIN "12"       |Server -> client  |The server lets the client know the game has been won|The client score is increased by 1|
+|CMD_SND_GAMELOSS "13"      |Server -> client  |The server lets the client know the game has been lost|The client score is decreased by 1|
+|CMD_SND_MISCELLANEOUS "14"  |Server -> client  |The server send the client any message that is not required for functionality|Client just reads message as it is|
+|CMD_GET_RANDOM_WORD "15"   |Server -> Wordrepo|The server asks the wordrepo to give it a random word|Random word response from repo|
+|CMD_GET_STEM_WORD "16"     |Server -> Wordrepo|The server asks the repo for a stem word with minimum length according to number of words specified by user|Stem word response from repo|
+|MSG_TERMINATOR "\n"        |  All             |Appended to each message sent to indicate end of message|The reader knows its done reading|
 
 
 ## Coding Standards
