@@ -109,9 +109,9 @@ public class Server {
                 }
             } catch (Exception e) {
                 System.out.println(e);
-            } finally {
-                handleClientExit();
+                handleClientExitServerError();
             }
+            handleClientExit();
         }
 
         /**
@@ -140,6 +140,23 @@ public class Server {
          */
         private void handleClientExit(){
             try { 
+                clientSocket.close();
+                System.out.println("Client connection closed: " + clientSocket);
+            } catch (IOException e) {
+                System.out.println("Error closing client socket: " + e.getMessage());
+            }
+        }
+
+        /**
+         * Handles client exit when a server error occurs.
+         * Sends an error message to the client indicating a server error
+         * and advises the client to try again later. Closes the client's
+         * socket connection and logs the closure to the console. If an
+         * IOException occurs while closing the socket, logs the error message.
+         */
+        private void handleClientExitServerError(){
+            try { 
+                sendMessage(Constants.CMD_SND_ERROR, "Server error, please try again later.");
                 clientSocket.close();
                 System.out.println("Client connection closed: " + clientSocket);
             } catch (IOException e) {
@@ -189,7 +206,13 @@ public class Server {
             int difficultyFactor = Integer.parseInt(args.split(":")[1]);
 
             System.out.println("Setting up puzzle with " + numOfWords + " number of words and a difficulty factor of " + difficultyFactor); 
-            puzzle = new PuzzleObject(numOfWords, difficultyFactor);
+            
+            try {
+                this.puzzle = new PuzzleObject(numOfWords, difficultyFactor);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                this.handleClientExitServerError();
+            }
 
             sendMessage(Constants.CMD_SND_PUZZLE, puzzle.getPuzzleSlaveString());
         }

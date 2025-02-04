@@ -16,11 +16,17 @@ public class PuzzleObject {
     private char[][] puzzleMaster;
     private char[][] puzzleSlave;
 
-    PuzzleObject(int numWords, int difficultyFactor){
+    PuzzleObject(int numWords, int difficultyFactor) throws Exception{
         this.numWords = numWords;
         this.difficultyFactor = difficultyFactor;
         this.guessCounter = 0;
         this.stem = contactWordRepository(Constants.CMD_GET_STEM_WORD, String.valueOf((numWords-1)*2));
+
+        if (stem.equals("ERROR")){
+            System.out.println("error with word repo, service might not be running");
+            throw new RuntimeException("error with word repo, service might not be running");
+        }
+
         this.guessCounter += stem.length() * difficultyFactor;
 
         for (int i = 0; i < stem.length(); i += 2) {

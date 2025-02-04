@@ -19,6 +19,7 @@ public class Constants {
     public static final String CMD_SND_GAMEWIN = "12";
     public static final String CMD_SND_GAMELOSS = "13";
     public static final String CMD_SND_MISCELLANEOUS= "14"; 
+    public static final String CMD_SND_ERROR = "99";
 
     //server to word repo
     public static final String CMD_GET_RANDOM_WORD = "15";

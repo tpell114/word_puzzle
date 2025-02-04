@@ -152,6 +152,11 @@ public class Client {
             case Constants.CMD_SND_SCORE:
                 System.out.println("Your current score is: " + contents);
                 break;
+
+            case Constants.CMD_SND_ERROR:
+                System.out.println(contents);
+                System.exit(1);
+                break;
         }
     }
 
@@ -237,7 +242,13 @@ public class Client {
         this.readFromServer();
 
         System.out.println(Constants.GUESS_MESSAGE);
-        String guess = System.console().readLine();
+        String guess = System.console().readLine().toLowerCase().trim();
+
+        while (guess.equals("")) {
+            
+            System.out.println(Constants.GUESS_MESSAGE);
+            guess = System.console().readLine().toLowerCase().trim();
+        }
 
         while (!guess.equals("~")) {
 
