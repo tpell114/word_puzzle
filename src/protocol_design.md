@@ -46,8 +46,8 @@ In this document, we outline the the list of request and reply messages and acti
 ![Sequence Diagram](https://github.com/tpell114/word_puzzle/blob/main/src/sequence_diagram.png)
 
 ## Statement of Contribution
-| Name        | Server     |Client|Word Repo|
-| -------------       |-------------   |-------------      |-------------  |
-|Tyler       |Tyler|Tyler   | Tyler|
+| Name        | Server     |Client|Word Repo| Going the extra mile|
+| -------------       |-------------   |-------------      |-------------  |-------------  |
+|Tyler       |Tyler|Tyler   | Tyler|Tyler|
 |Juan       |Juan|Juan   | Juan|
 
