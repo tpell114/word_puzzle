@@ -86,6 +86,21 @@ public class Client {
     }
 
     /**
+     * Closes the client socket connection and exits the program.
+     * This method attempts to close the socket and if an IOException occurs,
+     * it prints the error message to the console and exits with status 1.
+     */
+    public void closeClientError() {
+        try {
+            clientSocket.close();
+            System.exit(1);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        }
+    }
+
+    /**
      * Sends a command and message to the server.
      * The message is formatted by concatenating the command code
      * and the message with a space separator, then sent through
@@ -155,7 +170,7 @@ public class Client {
 
             case Constants.CMD_SND_ERROR:
                 System.out.println(contents);
-                System.exit(1);
+                this.closeClientError();
                 break;
         }
     }
@@ -245,7 +260,7 @@ public class Client {
         String guess = System.console().readLine().toLowerCase().trim();
 
         while (guess.equals("")) {
-            
+
             System.out.println(Constants.GUESS_MESSAGE);
             guess = System.console().readLine().toLowerCase().trim();
         }
