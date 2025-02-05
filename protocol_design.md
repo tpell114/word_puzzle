@@ -38,12 +38,12 @@ In this document, we outline the the list of request and reply messages and acti
 
 ## Component Diagram
 
-![Component Diagram](https://github.com/tpell114/word_puzzle/blob/main/src/component_diagram.png)
+![Component Diagram](https://github.com/tpell114/word_puzzle/blob/main/component_diagram.png)
 
 
 ## Sequence Diagram
 
-![Sequence Diagram](https://github.com/tpell114/word_puzzle/blob/main/src/sequence_diagram.png)
+![Sequence Diagram](https://github.com/tpell114/word_puzzle/blob/main/sequence_diagram.png)
 
 ## Statement of Contribution
 | Name        | Server     |Client|Word Repo| Going the extra mile|
