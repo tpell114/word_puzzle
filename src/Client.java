@@ -249,18 +249,34 @@ public class Client {
     private void playPuzzle() {
 
         gameOverFlag = false;
+
         System.out.println("\nHow many words would you like in the puzzle? (Enter a number between 2 and 5)");
         String numWords = System.console().readLine();
+
+        while (!numWords.matches("[2-5]")) {
+            System.out.println("Invalid input.");
+            System.out.println("\nHow many words would you like in the puzzle? (Enter a number between 2 and 5)");
+            numWords = System.console().readLine();
+        }
+
+
         System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
         String failedAttemptFactor = System.console().readLine();
+
+        while (!failedAttemptFactor.matches("[1-5]")) {
+            System.out.println("Invalid input.");
+            System.out.println("\nEnter a failed attempt factor (Enter a number between 1 and 5)");
+            failedAttemptFactor = System.console().readLine();
+        }
+
         this.sendToServer(Constants.CMD_LEVEL_SET, numWords + ":" + failedAttemptFactor);
         this.readFromServer();
 
         System.out.println(Constants.GUESS_MESSAGE);
         String guess = System.console().readLine().toLowerCase().trim();
 
-        while (guess.equals("")) {
-
+        while ((!guess.matches("^[a-zA-Z?]*$") && !guess.equals("~")) || guess.equals("")) {
+            System.out.println("Invalid input.");
             System.out.println(Constants.GUESS_MESSAGE);
             guess = System.console().readLine().toLowerCase().trim();
         }
@@ -278,12 +294,25 @@ public class Client {
 
                 System.out.println(Constants.GUESS_MESSAGE);
                 guess = System.console().readLine();
+
+                while ((!guess.matches("^[a-zA-Z?]*$") && !guess.equals("~")) || guess.equals("")) {
+                    System.out.println("Invalid input.");
+                    System.out.println(Constants.GUESS_MESSAGE);
+                    guess = System.console().readLine().toLowerCase().trim();
+                }
+
             } else {
                 this.sendToServer(Constants.CMD_SUBMIT_GUESS, guess);
                 this.readFromServer();
                 if (gameOverFlag) break;
                 System.out.println(Constants.GUESS_MESSAGE);
                 guess = System.console().readLine();
+
+                while ((!guess.matches("^[a-zA-Z?]*$") && !guess.equals("~")) || guess.equals("")) {
+                    System.out.println("Invalid input.");
+                    System.out.println(Constants.GUESS_MESSAGE);
+                    guess = System.console().readLine().toLowerCase().trim();
+                }
             }
         }
 
@@ -307,6 +336,12 @@ public class Client {
         System.out.println(Constants.WORD_REPO_MESSAGE);
 
         String input = System.console().readLine();
+
+        while (!input.equals("~") && (input.isEmpty() || !input.matches("^[+-?][a-zA-Z]*$"))) {
+            System.out.println("Invalid input.");
+            System.out.println(Constants.WORD_REPO_MESSAGE);
+            input = System.console().readLine();
+        }
 
         while (!input.equals("~")) {
 
@@ -343,6 +378,12 @@ public class Client {
 
             System.out.println(Constants.WORD_REPO_MESSAGE);
             input = System.console().readLine();
+
+            while (!input.equals("~") && (input.isEmpty() || !input.matches("^[+-?][a-zA-Z]*$"))) {
+                System.out.println("Invalid input.");
+                System.out.println(Constants.WORD_REPO_MESSAGE);
+                input = System.console().readLine();
+            }
         }
     }
 
